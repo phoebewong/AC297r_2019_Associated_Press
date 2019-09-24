@@ -1,10 +1,17 @@
 ac297r-capstone-project
 ==============================
 
-AC297r Capstone
+### Creating a dev environment
 
-Project Organization
-------------
+Create a new Python virtualenv with 3.6.8+. Run `pip install -r requirements.txt`.
+
+To run the tests, run `pytest` from the project root.
+
+### Running the application
+
+You can `make api` to run locally. The app will be available at [http://localhost:8000]().
+
+### Project Organization
 
     ├── Makefile
     ├── README.md

@@ -1,6 +1,13 @@
 # local package
 -e .
 
+# web
+fastapi
+aiofiles
+uvicorn
+jinja2
+email-validator
+
 # external requirements
 click
 Sphinx
