@@ -19,15 +19,17 @@ if __name__ == '__main__':
     # If you want to read from a data file do this
     file_name = '../../data/media_1569096280.json'
     json_response = media_api.get_json_response_from_file(file_name)
-    print(json_response)
 
     items = media_api.get_items()
     count = media_api.get_item_count()
 
     ind = np.random.randint(0, count-1)
-    article_item = media_api.get_specific_item(ind) # the first item
+    # ind = 0 # the first item
+    article_item = media_api.get_specific_item(ind)
 
     # getting specific things from the item
     print(article_item.get_headline())
     print(article_item.get_uri())
-    print(article_item.get_full_json_response())
+    # print(article_item.get_full_json_response())
+    print(article_item.get_entities())
+    # print(article_item.get_associations())

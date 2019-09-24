@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+from image_item import ImageItem
 
 class ArticleItem():
     '''
@@ -11,6 +12,7 @@ class ArticleItem():
         self.raw_json = raw_json
         self.full_json_response = None
         self.itemid = self.raw_json['altids']['itemid']
+        self.full_json_response = self.get_full_json_response()
 
     def get_full_json_response(self, itemid=None):
         '''
@@ -60,13 +62,31 @@ class ArticleItem():
         return self.raw_json['uri']
 
     def get_entities(self):
+        '''
+        Gets all entities from an article item.
+        The list of entities from the article seem to be:
+        '''
+        entities_list = ['person', 'subject', 'organisation', 'place', 'event']
+        people = self.full_json_response['data']['item']['place']
+        entities_dict = {}
+        for entity in entities_list:
+            if entity not in self.full_json_response['data']['item'].keys():
+                continue
+            list_of_tags = self.full_json_response['data']['item'][entity]
+            entities_dict[entity] = []
+            for tag in list_of_tags:
+                if tag['name'] is not None:
+                    entities_dict[entity].append(tag['name'])
+        return entities_dict
+
+    def get_associations(self):
+        '''
+        Gets all the associations (images) from the article item.
+        '''
         raise NotImplementedError
 
     def get_text(self):
         '''
         TODO: figure out how to get full text
         '''
-        raise NotImplementedError
-
-    def get_associations(self):
         raise NotImplementedError
