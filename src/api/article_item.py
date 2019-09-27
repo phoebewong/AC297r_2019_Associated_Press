@@ -2,6 +2,7 @@ import requests
 import json
 import time
 from image_item import ImageItem
+import constants
 
 class ArticleItem():
     '''
@@ -12,6 +13,9 @@ class ArticleItem():
         self.full_json_response = None
         self.itemid = self.raw_json['altids']['itemid']
         self.full_json_response = None
+        # creating a unique file so we don't lose data
+        self.path = constants.DATA_DIR
+        self.file_name = '{}/article/{}.json'.format(self.path, self.itemid)
 
     def save_full_json_response(self, apikey, itemid=None):
         '''
@@ -26,8 +30,6 @@ class ArticleItem():
 
         full_url = '{}&apikey={}'.format(self.get_uri(), apikey)
         self.response = requests.get(full_url)
-        # creating a unique file so we don't lose data
-        self.file_name = '../../data/article/{}.json'.format(self.itemid)
 
         # write to json file if the response is ok
         if self.response.status_code == 200:
@@ -36,19 +38,12 @@ class ArticleItem():
                 json.dump(self.full_json_response, outfile)
         return self.full_json_response
 
-    def get_filename_from_itemid(self):
-        '''
-        Helper function that uses saved json files for that article if they exist
-        '''
-        return '../../data/article/{}.json'.format(self.itemid)
-
     def get_full_json_response_file(self):
         '''
         Helper function to load json if we have already saved a file corresponding to this article
         '''
-        file_name = self.get_filename_from_itemid()
         try:
-            with open(file_name, 'r') as infile:
+            with open(self.file_name, 'r') as infile:
                 self.full_json_response = json.load(infile)
                 return self.full_json_response
         except FileNotFoundError:

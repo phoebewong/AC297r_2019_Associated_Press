@@ -1,6 +1,7 @@
 from media_api import MediaApi
 import numpy as np
 import configparser
+import constants
 
 if __name__ == '__main__':
     # Reading the password in
@@ -8,6 +9,8 @@ if __name__ == '__main__':
     config.read('password.ini')
     apikey = (config['key']['apikey'])
     media_item = MediaApi()
+
+    print(constants.DATA_DIR)
 
     # Make requests to get pages
     counter = 0

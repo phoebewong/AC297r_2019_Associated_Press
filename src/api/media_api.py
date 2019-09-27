@@ -2,6 +2,7 @@ import requests
 import json
 import time
 from article_item import ArticleItem
+import constants
 
 class MediaApi:
     '''
@@ -27,7 +28,8 @@ class MediaApi:
         self.response = requests.get(self.full_url)
 
         # creating a unique file so we don't lose data
-        self.file_name = '../../data/full/{}.json'.format(int(time.time()))
+        self.path = constants.DATA_DIR
+        self.file_name = '{}/full/{}.json'.format(self.path, int(time.time()))
 
         # write to json file if the response is ok
         if self.response.status_code == 200:
