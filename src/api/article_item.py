@@ -28,7 +28,7 @@ class ArticleItem():
         full_url = '{}&apikey={}'.format(self.get_uri(), self.apikey)
         self.response = requests.get(full_url)
         # creating a unique file so we don't lose data
-        self.file_name = '../../data/article_{}.json'.format(self.itemid)
+        self.file_name = '../../data/article/{}.json'.format(self.itemid)
 
         # write to json file if the response is ok
         if self.response.status_code == 200:
@@ -41,7 +41,7 @@ class ArticleItem():
         '''
         Helper function that uses saved json files for that article if they exist
         '''
-        return '../../data/article_{}.json'.format(self.itemid)
+        return '../../data/article/{}.json'.format(self.itemid)
 
     def get_full_json_response_file(self):
         '''
@@ -83,7 +83,27 @@ class ArticleItem():
         '''
         Gets all the associations (images) from the article item.
         '''
-        raise NotImplementedError
+        try:
+            return self.full_json_response['data']['item']['associations']
+        except:
+            return None
+
+    def get_association_count(self):
+        '''
+        Gets the count of how many associations there are in the json output
+        '''
+        return len(self.full_json_response['data']['item']['associations'])
+
+    def get_specific_association(self, association_key):
+        '''
+        Gets a specific association (image) from the list of images
+        '''
+        if association_key in self.full_json_response['data']['item']['associations'].keys():
+            association_raw = self.full_json_response['data']['item']['associations'][association_key]
+            association = ImageItem(self.apikey, association_raw)
+            return association
+        else:
+            return None
 
     def get_text(self):
         '''
