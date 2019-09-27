@@ -1,6 +1,8 @@
 # baseline model
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
-nltk.download('wordnet')
+# nltk.download('wordnet')
 from nltk.corpus import wordnet 
 
 ### FUNCTIONS ###
@@ -17,6 +19,16 @@ def syn_score(text, img, eta=0.5):
                 if name in img['tags']:
                     score += eta
     return score
+
+def tfidf_score(tfidf_df, text, img):
+    ref = tfidf_df.loc[img['imgid'],:]
+    score = 0
+    for t in text:
+        for i in img['tags']:
+            if t == i:
+                score += ref[i]
+    return score
+    
 
 # baseline model
 # ranks images based on tag overlap 
@@ -44,3 +56,14 @@ if __name__ == "__main__":
     # unit tests
     print('Simple Overlap Score:',baseline_model(text_tags, images, 2, baseline_score))
     print('Synonym + Overlap Score:',baseline_model(text_tags, images, 2, lambda x,y: syn_score(x,y,eta=0.5)))
+
+    #tf-idf
+    vectorizer = TfidfVectorizer()
+    vecs = vectorizer.fit_transform([' '.join(i['tags']) for i in images])
+    feats = vectorizer.get_feature_names()
+    tfidf_df = pd.DataFrame(vecs.todense().tolist(), columns=feats)
+    tfidf_df['label'] = [i['imgid'] for i in images]
+    tfidf_df.set_index('label',inplace=True)
+    print('TF-IDF Score:',baseline_model(text_tags, images, 2, lambda x,y: tfidf_score(tfidf_df,x,y)))
+
+    # evaluation 
