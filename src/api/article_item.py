@@ -55,29 +55,8 @@ class ArticleItem():
         except FileNotFoundError:
             raise
 
-    def get_headline(self):
-        return self.raw_json['headline']
-
     def get_uri(self):
         return self.raw_json['uri']
-
-    def get_entities(self):
-        '''
-        Gets all entities from an article item.
-        The list of entities from the article seem to be:
-        '''
-        entities_list = ['person', 'subject', 'organisation', 'place', 'event']
-        people = self.full_json_response['data']['item']['place']
-        entities_dict = {}
-        for entity in entities_list:
-            if entity not in self.full_json_response['data']['item'].keys():
-                continue
-            list_of_tags = self.full_json_response['data']['item'][entity]
-            entities_dict[entity] = []
-            for tag in list_of_tags:
-                if tag['name'] is not None:
-                    entities_dict[entity].append(tag['name'])
-        return entities_dict
 
     def get_associations(self):
         '''
