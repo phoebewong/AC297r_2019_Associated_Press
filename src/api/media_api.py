@@ -7,24 +7,23 @@ class MediaApi:
     '''
     A class for making requests to the media API and saving the responses as json
     '''
-    def __init__(self, apikey, page_size=100, qt=None):
+    def __init__(self, page_size=100, qt=None):
         self.url = 'https://api.ap.org/media'
-        self.apikey = apikey
         self.page_size=page_size
-
-        # URL format: https://api.ap.org/media/content/ondemand?qt={}&apikey={apikey}[{optional_parameters}]
-        if qt is None:
-            self.full_url = '{}/content/ondemand?apikey={}&page_size={}'.format(self.url, self.apikey, self.page_size)
-        else:
-            self.full_url = '{}/content/ondemand?qt={}&apikey={}&page_size={}'.format(self.url, self.qt, self.apikey, self.page_size)
+        self.qt = qt
         self.json_response = None
         self.response = None
         self.file_name = None
 
-    def make_get_request(self):
+    def make_get_request(self, apikey):
         '''
         Makes a get request. If the request is ok, a json file is saved with the response
         '''
+        # URL format: https://api.ap.org/media/content/ondemand?qt={}&apikey={apikey}[{optional_parameters}]
+        if self.qt is None:
+            self.full_url = '{}/content/ondemand?apikey={}&page_size={}'.format(self.url, apikey, self.page_size)
+        else:
+            self.full_url = '{}/content/ondemand?qt={}&apikey={}&page_size={}'.format(self.url, self.qt, apikey, self.page_size)
         self.response = requests.get(self.full_url)
 
         # creating a unique file so we don't lose data
@@ -72,7 +71,7 @@ class MediaApi:
         '''
         if item_index < self.get_item_count():
             item_raw = self.json_response['data']['items'][item_index]['item']
-            item = ArticleItem(self.apikey, item_raw)
+            item = ArticleItem(item_raw)
             return item
         else:
             return None

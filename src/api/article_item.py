@@ -7,14 +7,13 @@ class ArticleItem():
     '''
     A class for dealing with each article (1 item in the media API response)
     '''
-    def __init__(self, apikey, raw_json):
-        self.apikey = apikey
+    def __init__(self, raw_json):
         self.raw_json = raw_json
         self.full_json_response = None
         self.itemid = self.raw_json['altids']['itemid']
-        self.full_json_response = self.get_full_json_response()
+        self.full_json_response = None
 
-    def get_full_json_response(self, itemid=None):
+    def save_full_json_response(self, apikey, itemid=None):
         '''
         Goes to the article uri and gets the full json response
         '''
@@ -25,7 +24,7 @@ class ArticleItem():
             # no file saved, doing an API request
             pass
 
-        full_url = '{}&apikey={}'.format(self.get_uri(), self.apikey)
+        full_url = '{}&apikey={}'.format(self.get_uri(), apikey)
         self.response = requests.get(full_url)
         # creating a unique file so we don't lose data
         self.file_name = '../../data/article/{}.json'.format(self.itemid)
@@ -79,7 +78,7 @@ class ArticleItem():
         '''
         if association_key in self.full_json_response['data']['item']['associations'].keys():
             association_raw = self.full_json_response['data']['item']['associations'][association_key]
-            association = ImageItem(self.apikey, association_raw)
+            association = ImageItem(association_raw)
             return association
         else:
             return None
