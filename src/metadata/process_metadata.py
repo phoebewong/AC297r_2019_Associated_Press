@@ -8,6 +8,12 @@ class Metadata:
     "extract content metadata from input json file"
     def __init__(self, content):
 
+        #get parent id for images
+        #articles do not have this entity
+        try:
+            self.ai = content['params']['ai']
+        except:
+            self.ai = np.nan
         self.content = content
         self.metadata = content['data']['item']
         self.id = self.metadata['altids']['itemid']
