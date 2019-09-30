@@ -3,15 +3,16 @@
 #dependencies
 import os
 import csv
+import constants
 import json
 from process_metadata import Metadata
 
 #directory paths
-data_directory = '../../data'
-article_directory = 'article'
-image_directory = 'image'
+data_directory = constants.DATA_DIR
+article_dir_name = constants.ARTICLE_DIR_NAME
+image_dir_name = constants.IMAGE_DIR_NAME
 
-search = [article_directory, image_directory]
+search = [article_dir_name, image_dir_name]
 
 if __name__ == '__main__':
     for dir in search:
@@ -19,6 +20,7 @@ if __name__ == '__main__':
         #create csv file
         full_path = f'{data_directory}/{dir}/'
         csv_file_path = f'{data_directory}/{dir}_metadata.csv'
+        print(f'Writing csv file for {dir}') #track progress
         with open(csv_file_path, 'w') as content_csv:
             csv_writer = csv.writer(content_csv)
             #feature names
