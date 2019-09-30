@@ -5,3 +5,4 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 ARTICLE_DIR_NAME = 'article'
 IMAGE_DIR_NAME = 'image'
+DATA_TRUTH = 'HarvardCapstone.txt'
