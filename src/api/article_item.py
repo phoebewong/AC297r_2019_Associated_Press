@@ -2,20 +2,28 @@ import requests
 import json
 import time
 from image_item import ImageItem
+import xml.etree.ElementTree as et
 import constants
+from pathlib import Path
 
 class ArticleItem():
     '''
     A class for dealing with each article (1 item in the media API response)
     '''
-    def __init__(self, raw_json):
+    def __init__(self, raw_json, full_json=None):
         self.raw_json = raw_json
-        self.full_json_response = None
-        self.itemid = self.raw_json['altids']['itemid']
-        self.full_json_response = None
+        self.full_json_response = full_json
+
+        if self.raw_json is None:
+            assert(self.full_json_response is not None)
+            self.itemid = self.full_json_response['data']['item']['altids']['itemid']
+        else:
+            self.itemid = self.raw_json['altids']['itemid']
+
         # creating a unique file so we don't lose data
         self.path = constants.DATA_DIR
         self.file_name = '{}/article/{}.json'.format(self.path, self.itemid)
+        self.full_text_json = '{}/full_text/{}.json'.format(constants.DATA_DIR, self.itemid)
 
     def save_full_json_response(self, apikey, itemid=None):
         '''
@@ -78,8 +86,35 @@ class ArticleItem():
         else:
             return None
 
-    def get_text(self):
+    def get_text(self, apikey):
         '''
-        TODO: figure out how to get full text
+        Gets the full text from a json file corresponding to an article and saves it as a json
         '''
-        raise NotImplementedError
+        # if a file exists, we don't call the API
+        if Path(self.full_text_json).is_file():
+            return
+
+        # dealing with articles that have no text
+        if 'renditions' not in self.full_json_response['data']['item'].keys():
+            print('\n article {}: no text \n'.format(self.itemid))
+            with open(self.full_text_json, 'x') as outfile:
+                json.dump({'id': self.itemid, 'full_text': ''}, outfile)
+            return
+
+        # getting the rendition xml file
+        self.rendition = self.full_json_response['data']['item']['renditions']['nitf']
+        self.rendition_uri = self.rendition['href']
+        full_url = '{}&apikey={}'.format(self.rendition_uri, apikey)
+        response = requests.get(full_url)
+
+        # parsing the xml file and writing a json object to file
+        if response.status_code == 200:
+            root = et.fromstring(response.text)
+            text = root.find('body').find('body.content').find('block').itertext()
+            json_object = {
+                'id': self.itemid,
+                'full_text': ''.join(text)
+            }
+            with open(self.full_text_json, 'x') as outfile:
+                json.dump(json_object, outfile)
+        return
