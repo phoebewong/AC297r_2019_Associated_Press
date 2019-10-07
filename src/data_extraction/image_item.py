@@ -20,9 +20,8 @@ class ImageItem():
             self.itemid = self.raw_json['altids']['itemid']
 
         # creating a unique file so we don't lose data
-        self.path = constants.DATA_DIR
-        self.file_name = '{}/image/{}.json'.format(self.path, self.itemid)
-        self.thumbnail = '{}/thumbnail/{}.jpg'.format(constants.DATA_DIR, self.itemid)
+        self.file_name = '{}/{}.json'.format(constants.IMAGE_DIR, self.itemid)
+        self.thumbnail = '{}/{}.jpg'.format(constants.THUMBNAIL_DIR, self.itemid)
 
     def save_full_json_response(self, apikey, associationid=None):
         '''

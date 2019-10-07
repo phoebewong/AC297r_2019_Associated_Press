@@ -4,7 +4,7 @@ import time
 from article_item import ArticleItem
 import constants
 
-class MediaApi:
+class MediaItem:
     '''
     A class for making requests to the media API and saving the responses as json
     '''
@@ -28,8 +28,7 @@ class MediaApi:
         self.response = requests.get(self.full_url)
 
         # creating a unique file so we don't lose data
-        self.path = constants.DATA_DIR
-        self.file_name = '{}/full/{}.json'.format(self.path, int(time.time()))
+        self.file_name = '{}/full/{}.json'.format(constants.DATA_DIR, int(time.time()))
 
         # write to json file if the response is ok
         if self.response.status_code == 200:

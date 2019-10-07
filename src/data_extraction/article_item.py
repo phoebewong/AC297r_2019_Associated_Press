@@ -21,9 +21,8 @@ class ArticleItem():
             self.itemid = self.raw_json['altids']['itemid']
 
         # creating a unique file so we don't lose data
-        self.path = constants.DATA_DIR
-        self.file_name = '{}/article/{}.json'.format(self.path, self.itemid)
-        self.full_text_json = '{}/full_text/{}.json'.format(constants.DATA_DIR, self.itemid)
+        self.file_name = '{}/{}.json'.format(constants.ARTICLE_DIR, self.itemid)
+        self.full_text_json = '{}/{}.json'.format(constants.FULL_TEXT_DIR, self.itemid)
 
     def save_full_json_response(self, apikey, itemid=None):
         '''
