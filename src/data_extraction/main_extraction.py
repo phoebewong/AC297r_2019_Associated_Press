@@ -1,5 +1,4 @@
 from media_item import MediaItem
-import numpy as np
 import configparser
 
 if __name__ == '__main__':
