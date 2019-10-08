@@ -2,19 +2,26 @@ import requests
 import json
 import time
 import constants
+import urllib
+from pathlib import Path
 
 class ImageItem():
     '''
     A class for dealing with each image (1 association in the media API response for 1 article)
     '''
-    def __init__(self, raw_json):
+    def __init__(self, raw_json, full_json=None):
         self.raw_json = raw_json
-        self.full_json_response = None
-        self.itemid = self.raw_json['altids']['itemid']
-        self.full_json_response = None
+        self.full_json_response = full_json
+
+        if self.raw_json is None:
+            assert(self.full_json_response is not None)
+            self.itemid = self.full_json_response['data']['item']['altids']['itemid']
+        else:
+            self.itemid = self.raw_json['altids']['itemid']
+
         # creating a unique file so we don't lose data
-        self.path = constants.DATA_DIR
-        self.file_name = '{}/image/{}.json'.format(self.path, self.itemid)
+        self.file_name = '{}/{}.json'.format(constants.IMAGE_DIR, self.itemid)
+        self.thumbnail = '{}/{}.jpg'.format(constants.THUMBNAIL_DIR, self.itemid)
 
     def save_full_json_response(self, apikey, associationid=None):
         '''
@@ -53,3 +60,27 @@ class ImageItem():
         Helper function to get uri
         '''
         return self.raw_json['uri']
+
+    def get_images(self, apikey):
+        '''
+        Saves image thumbnails in files
+        '''
+        # if a file exists, we don't call the API
+        if Path(self.thumbnail).is_file():
+            return
+
+        # dealing with no renditions
+        if 'renditions' not in self.full_json_response['data']['item'].keys():
+            print('\n image {}: no renditions \n'.format(self.itemid))
+            return
+
+        # dealing with no thumbnail
+        if 'thumbnail' not in self.full_json_response['data']['item']['renditions'].keys():
+            print('\n image {}: no thumbnail \n'.format(self.itemid))
+            return
+
+        # getting the image file
+        self.thumbnail_href = self.full_json_response['data']['item']['renditions']['thumbnail']['href']
+        full_thumbnail_url = '{}&apikey={}'.format(self.thumbnail_href, apikey)
+        urllib.request.urlretrieve(full_thumbnail_url, self.thumbnail)
+        return
