@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>Article image matcher</title>
+
+  <!-- Third party CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{{ url_for('static', path='css/app.css') }}" rel="stylesheet">
+
+  <!-- favicon-->
+  <link rel="shortcut icon" href="{{ url_for('static', path='favicon.ico') }}">
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vue-resource"></script>
+
+</head>
+
+<body id="page-top">
+
+<!-- Tool -->
+{% raw %}
+<div id="app" class="container-fluid mt-4">
+  <div class="row">
+    <div class="col">
+      <h3>Input</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <form class="form">
+        <div class="row">
+          <div class="col-sm-11">
+            <input v-model="title" type="text" class="form-control" id="title" placeholder="Article title">
+            <input v-model="body" type="text" class="form-control" id="body" placeholder="Article body">
+          </div>
+          <div class="col-sm-1">
+            <button type="submit"
+                    class="btn btn-primary float-right" style="width: 100%;"
+                    @click.prevent="getMatches"
+                    :disabled="pending"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col">
+      <h3>
+        Matches
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <ul v-if="matches.length">
+        <li v-for="match in matches">{{ match.id }}: {{ match.score }}</li>
+      </ul>
+      <div v-else>
+        No matches.
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endraw %}
+
+<!--scripts-->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', path='js/app.js') }}"></script>
+</body>
+
+</html>
