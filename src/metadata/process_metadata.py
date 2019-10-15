@@ -17,6 +17,8 @@ class Metadata:
         self.content = content
         self.metadata = content['data']['item']
         self.id = self.metadata['altids']['itemid']
+        self.version = self.metadata['version']
+        self.versioncreated = self.metadata['versioncreated']
         self.uri = self.metadata['uri']
         self.type = self.metadata['type']
         self.language = self.metadata['language']

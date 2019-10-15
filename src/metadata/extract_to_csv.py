@@ -89,6 +89,8 @@ def Summary(content):
     city = content.get_city()
     country = content.get_country_name()
     long_lat = content.get_long_lat()
+    version = content.version
+    version_created = content.versioncreated
 
     #content description info
     title = content.get_title()
@@ -96,7 +98,7 @@ def Summary(content):
     headline_extended = content.get_headline_extended()
     summary = content.get_summary()
 
-    feature_vals = [content_type, language,
+    feature_vals = [version, version_created, content_type, language,
                     city, country, long_lat, title, headline,
                     headline_extended, summary]
     return feature_vals

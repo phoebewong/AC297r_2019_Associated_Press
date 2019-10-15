@@ -22,7 +22,7 @@ if __name__ == '__main__':
         #summary csv
         summary_name = 'summary'
         summary_path = f'{output_directory}/{dir}_{summary_name}.csv'
-        summary_features = ['id', 'article_idx', 'content_type', 'language',
+        summary_features = ['id', 'article_idx', 'version', 'version_created', 'content_type', 'language',
                             'city', 'country', 'long_lat', 'title', 'headline',
                             'headline_extended', 'summary']
         #output unintended file names
