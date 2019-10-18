@@ -6,4 +6,5 @@ OUTPUT_CSV_DIR = PROJECT_ROOT / "data" / 'csv_outputs'
 
 ARTICLE_DIR_NAME = 'article'
 IMAGE_DIR_NAME = 'image'
+FULL_TEXT_DIR_NAME = 'full_text'
 DATA_TRUTH = 'HarvardCapstone.txt'
