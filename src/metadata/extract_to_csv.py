@@ -61,7 +61,7 @@ def info_to_csv(funcs, csv_paths, data_path, feature_lists, \
                 #track number of metadata extracted
                 i = 0
                 #extract all requested info types
-                while i < len(funcs) - 1:
+                while i < len(funcs):
                     with open(csv_paths[i], 'a') as file_csv:
                         file_writer = csv.writer(file_csv)
                         content_type = content.type
