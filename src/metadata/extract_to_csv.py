@@ -97,7 +97,7 @@ def Summary(content):
     summary = content.get_summary()
 
     feature_vals = [content_type, language,
-                    city, country, title, headline,
+                    city, country, long_lat, title, headline,
                     headline_extended, summary]
     return feature_vals
 
