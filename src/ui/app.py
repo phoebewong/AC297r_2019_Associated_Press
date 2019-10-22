@@ -28,11 +28,18 @@ async def new_matches(article_input: ArticleInput):
     # TODO: do something with article.body ...
     return {
         "status": "ok",
-        "data": [
-            {"id": 123456, "score": 0.95},
-            {"id": 987654, "score": 0.81},
-            {"id": 543212, "score": 0.55},
-        ],
+        "data": {
+            "tags": [
+                {"name": "Sports", "score": 0.99},
+                {"name": "Basketball", "score": 0.91},
+                {"name": "Boston Celtics", "score": 0.2}
+            ],
+            "images": [
+                {"id": '0b5caa00d2a34db8a7d7c4bc30e6081b', "score": 0.95},
+                {"id": '0b40eeb8cff64ac3a3fae568a748dd04', "score": 0.81},
+                {"id": '0b328f5537d14be4bbe800ced89b5eec', "score": 0.55},
+            ]
+        },
     }
 
 
