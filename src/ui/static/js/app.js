@@ -7,7 +7,8 @@ var vue = new Vue({
       error: null,
       title: "",
       body: "",
-      matches: []
+      tags: [],
+      images: []
     }
   },
   async created () {
@@ -20,7 +21,8 @@ var vue = new Vue({
       var data = { title: this.title, body: this.body };
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
-          this.matches = response.body.data;
+          this.tags = response.body.data.tags;
+          this.images = response.body.data.images;
         }
         this.pending = false;
       }, response => {
@@ -28,6 +30,9 @@ var vue = new Vue({
         this.error = response.status;
         this.pending = false;
       });
+    },
+    makeImgSource(img_id){
+      return 'static/img/thumbnail/' + img_id + '.jpg'
     }
   },
   computed: {},
