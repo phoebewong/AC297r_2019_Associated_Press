@@ -1,6 +1,4 @@
 ###extract taxonomy datasets
-###for hierachical tag structures
-###extract taxonomy subsets
 
 import json
 import requests
