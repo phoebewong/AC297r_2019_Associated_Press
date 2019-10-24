@@ -5,14 +5,14 @@ import nltk
 # nltk.download('wordnet')
 from nltk.corpus import wordnet 
 import string
+from nltk.corpus import stopwords 
 
 ### FUNCTIONS ###
 
 # utility functions
 def clean_string(s):
-    ret = list(set([x.lower() for x in s.translate(str.maketrans('', '', string.punctuation)).split()]))
-    if 'a' in ret:
-        ret.remove('a')
+    stop_words = set(stopwords.words('english')) 
+    ret = list(set([x in s.translate(str.maketrans('', '', string.punctuation)).split() if x not in stop_words]))
     return ret
 
 def clean_tags(tags):

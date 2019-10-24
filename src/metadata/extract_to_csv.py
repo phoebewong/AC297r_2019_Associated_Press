@@ -27,7 +27,7 @@ def info_to_csv(info_type, func, csv_path, data_path, features, \
     if article:
         #remove article idx from text files as this field would be None
         features.remove('article_idx')
-    with open(csv_path, 'w') as file_csv:
+    with open(csv_path, 'w', newline='', encoding='utf-8') as file_csv:
         file_writer = csv.writer(file_csv)
         #write headers
         file_writer.writerow(features)
