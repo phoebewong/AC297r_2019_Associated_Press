@@ -11,8 +11,8 @@ from nltk.corpus import stopwords
 
 # utility functions
 def clean_string(s):
-    stop_words = set(stopwords.words('english')) 
-    ret = list(set([x in s.translate(str.maketrans('', '', string.punctuation)).split() if x not in stop_words]))
+    stop_words = set(stopwords.words('english'))
+    ret = list(set([x for x in s.translate(str.maketrans('', '', string.punctuation)).split() if x not in stop_words]))
     return ret
 
 def clean_tags(tags):
