@@ -2,7 +2,15 @@
 #need to update test and error cases
 
 #package dependency
+import json
 import numpy as np
+import constants
+
+data_directory = constants.DATA_DIR
+full_text_dir = constants.FULL_TEXT_DIR_NAME
+
+#get directory path
+full_text_path = f'{data_directory}/{full_text_dir}/'
 
 class Metadata:
     "extract content metadata from input json file"
@@ -17,6 +25,8 @@ class Metadata:
         self.content = content
         self.metadata = content['data']['item']
         self.id = self.metadata['altids']['itemid']
+        self.version = self.metadata['version']
+        self.versioncreated = self.metadata['versioncreated']
         self.uri = self.metadata['uri']
         self.type = self.metadata['type']
         self.language = self.metadata['language']
@@ -56,6 +66,18 @@ class Metadata:
                 return self.metadata['description_caption']
             except:
                 return np.nan
+
+    def get_full_text(self):
+        "get full text for articles"
+        if self.type != 'text':
+            print('Input is not an article')
+        else:
+            try:
+                text_path = f'{full_text_path}{self.id}.json'
+                text_json = json.load(open(text_path, "rb" ))
+                return text_json['full_text']
+            except:
+                return None
 
     def get_keywords(self):
         "get content keywords generated for search"

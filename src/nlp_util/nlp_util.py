@@ -17,11 +17,12 @@ def get_name_entity(doc, labels = None):
         label = list(map(lambda x: x.label_, doc.ents)) # entity labels
         data = pd.DataFrame(data = {'text': text,
                      'label': label})
+        data = data[data['label'].isin(labels)] # filter out rows that include specified labels
 
     else:
         text = list(map(lambda x: x.text, doc.ents)) # entity text
         label = list(map(lambda x: x.label_, doc.ents)) # entity labels
         data = pd.DataFrame(data = {'text': text,
                      'label': label})
-        data = data[data['label'].isin(labels)] # filter out rows that include specified labels
+
     return data
