@@ -1,7 +1,7 @@
 #dependencies
 import os
 import csv
-import constants
+from src import constants
 import json
 from extract_to_csv import info_to_csv, Summary, AP_Category, Subject, Person, Person_type, \
                            Person_team, Organisation, Org_industry, Place, Event

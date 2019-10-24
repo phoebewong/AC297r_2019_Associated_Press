@@ -1,7 +1,7 @@
 import requests
 import json
 import time
-import constants
+from src import constants
 import urllib
 from pathlib import Path
 

@@ -3,7 +3,7 @@ import json
 import time
 from image_item import ImageItem
 import xml.etree.ElementTree as et
-import constants
+from src import constants
 from pathlib import Path
 
 class ArticleItem():
