@@ -12,10 +12,10 @@ def get_textacy_name_entities(text, article_id, drop_determiners=True, exclude_t
     '''
 
     en = textacy.load_spacy_lang("en_core_web_sm", disable=("parser",))
-    if isinstance(text, str):
+    if isinstance(text, str): # if raw string
         doc = textacy.make_spacy_doc(text, lang=en)
     elif isinstance(text, Doc): # if pre-created spacy doc
-        doc = doc
+        doc = text
     else:
         doc = textacy.make_spacy_doc("NA", lang=en)
 
@@ -59,3 +59,26 @@ def get_textrank_entities_only(textrank_words, entities_list, return_count=False
         return textrank_words[np.array(ne_count) > 0], counts
     else:
         return textrank_words[np.array(ne_count) > 0]
+
+def extract_textrank_from_text(doc, textrank_topn = 10, textrank_window = 3, rel_gp = ['PERSON', 'GPE']):
+    '''
+    A function for the full-cycle from input text to named entities text rank ngram tokens
+    Parameters:
+    doc: spacy Doc object, created with the input text
+    textrank_topn: int, number of ngram tokens to be output from textrank
+    textrank_window: int, ngram size of each textrank token
+    rel_gp: list, a list of entities type to consider, default as person and geographic location
+
+    Return:
+    A numpy array of textrank ngram tokens that contain named entities extracted
+    '''
+    # Get textrank keywords
+    textrank_result = textacy.ke.textrank(doc, normalize="lemma", topn=textrank_topn, window_size=textrank_window)
+    textrank_words, textrank_score = zip(*[(textrank[0], textrank[1]) for textrank in textrank_result])
+    # Get named entities
+    named_entities = get_textacy_name_entities(doc, article_id = "999")
+    # create a numpy array of unique entities from text
+    entities_list = np.unique(named_entities['text'][named_entities['label'].isin(rel_gp)].values)
+    entities_list = np.array([entities.text for entities in entities_list])
+    textrank_entities = get_textrank_entities_only(np.array(textrank_words), entities_list)
+    return textrank_entities
