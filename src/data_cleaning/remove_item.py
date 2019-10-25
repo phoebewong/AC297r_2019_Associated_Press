@@ -1,5 +1,5 @@
 import csv
-import constants
+from src import constants
 
 #cleaning history output
 history_dir = constants.HIST_DIR
@@ -7,7 +7,7 @@ hist_content_type_name = constants.media_removal_hist_name
 hist_article_name = constants.article_removal_hist_name
 
 #cleaning output directory
-output_directory = constants.OUTPUT_DIR
+output_directory = constants.CLEAN_DIR
 
 def remove_content_type(img_summary_file, content_type, output_file):
     '''

@@ -1,13 +1,13 @@
 #dependencies
 import os
 import csv
-import constants
+from src import constants
 from remove_item import remove_content_type, remove_foreign_article, remove_article_wo_images
 from clean_item import clean_csv
 
 #directory paths
-data_directory = constants.DATA_DIR
-output_directory = constants.OUTPUT_DIR
+data_directory = constants.OUTPUT_CSV_DIR
+output_directory = constants.CLEAN_DIR
 
 #metadata file prefix
 article_file_prefix = constants.Text_Prefix

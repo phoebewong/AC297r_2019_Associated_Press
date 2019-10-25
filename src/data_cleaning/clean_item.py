@@ -1,5 +1,5 @@
 import csv
-import constants
+from src import constants
 
 #cleaning history output
 history_dir = constants.HIST_DIR
