@@ -63,16 +63,50 @@
   <div class="row mt-4">
     <div class="col">
       <h3>
+        Tags
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <ul v-if="tags.length">
+        <li v-for="tag in tags">{{ tag.name }}: {{ tag.score }}</li>
+      </ul>
+      <div v-else>
+        No tags.
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col">
+      <h3>
         Matches
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <ul v-if="matches.length">
-        <li v-for="match in matches">{{ match.id }}: {{ match.score }}</li>
+      <ul v-if="images.length">
+        <li v-for="image in images">{{ image.id }}: {{ image.score }}</li>
       </ul>
       <div v-else>
         No matches.
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col">
+      <h3>
+        Image Thumbnails
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <ul v-if="images.length">
+        <li v-for="image in images"><img :src="makeImgSource(image.id)"></li>
+      </ul>
+      <div v-else>
+        No thumbnails.
       </div>
     </div>
   </div>
