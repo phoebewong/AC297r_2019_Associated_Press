@@ -44,21 +44,22 @@ def get_textrank_entities_only(textrank_words, entities_list, return_count=False
     A numpy array of textrank ngram tokens that contain named entities extracted
     '''
     ne_count = []
-
+    entities_scores = np.zeros(len(entities_list))
     for textrank in textrank_words: # for each textrank ngram token
         temp_score = 0
-        for entities in entities_list: # for each named entities extracted
+        for ix, entities in enumerate(np.unique(entities_list)): # for each named entities extracted
             if (entities in textrank):
-                temp_score +=1
+                temp_score += 1
+                entities_scores[ix] += 1
             else:
                 temp_score = temp_score
         # Counts of named entities in each text rank word
         ne_count.append(temp_score)
 
     if return_count:
-        return textrank_words[np.array(ne_count) > 0], counts
+        return textrank_words[np.array(ne_count) > 0], entities_scores, np.array(ne_count)
     else:
-        return textrank_words[np.array(ne_count) > 0]
+        return textrank_words[np.array(ne_count) > 0], entities_scores
 
 def extract_textrank_from_text(doc, textrank_topn = 10, textrank_window = 3, rel_gp = ['PERSON', 'GPE']):
     '''
@@ -78,7 +79,11 @@ def extract_textrank_from_text(doc, textrank_topn = 10, textrank_window = 3, rel
     # Get named entities
     named_entities = get_textacy_name_entities(doc, article_id = "999")
     # create a numpy array of unique entities from text
-    entities_list = np.unique(named_entities['text'][named_entities['label'].isin(rel_gp)].values)
-    entities_list = np.array([entities.text for entities in entities_list])
-    textrank_entities = get_textrank_entities_only(np.array(textrank_words), entities_list)
-    return textrank_entities
+    entities_list = named_entities['text'][named_entities['label'].isin(rel_gp)].values
+    entities_list = np.unique([entities.text for entities in entities_list])
+    # Textrank ngram keywords that has >=1 named entities
+    textrank_entities, textrank_entities_score, ne_count = get_textrank_entities_only(np.array(textrank_words), entities_list, return_count=True)
+    textrank_entities_score = np.array(list(map(int, textrank_entities_score)))
+    # Return named entities extracted that existed in textrank keywords
+    entities_in_textrank = entities_list[textrank_entities_score >= 1]
+    return textrank_entities, textrank_entities_score, entities_in_textrank
