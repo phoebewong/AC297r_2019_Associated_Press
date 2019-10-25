@@ -88,6 +88,9 @@ target/
 *.swo
 *.ini
 
+# exclude models
+*.pkl
+
 # Mypy cache
 .mypy_cache/
 

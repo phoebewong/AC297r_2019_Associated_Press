@@ -1,5 +1,7 @@
 import os
 import logging
+import pickle
+from src import api_helper
 
 import uvicorn
 from fastapi import FastAPI
@@ -16,6 +18,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+models = {}
+
+def load_models():
+    global models
+    with open('static/models/random_model.pkl', 'rb') as f:
+        models['random_model'] = pickle.load(f)
+
 
 class ArticleInput(BaseModel):
     title: str = None
@@ -25,20 +34,20 @@ class ArticleInput(BaseModel):
 @app.post("/match")
 async def new_matches(article_input: ArticleInput):
     logger.debug("trying to find good images for article: %s", article_input)
-    # TODO: do something with article.body ...
+
+    # get tags
+    tags = api_helper.tagging_api(article_input.title, article_input.body)
+
+    # make a prediction with the model
+    data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))]]
+    prediction = models['random_model'].predict(data)
+    pp_preds = api_helper.postprocess(prediction).flatten()
+
     return {
         "status": "ok",
         "data": {
-            "tags": [
-                {"name": "Sports", "score": 0.99},
-                {"name": "Basketball", "score": 0.91},
-                {"name": "Boston Celtics", "score": 0.2}
-            ],
-            "images": [
-                {"id": '0b5caa00d2a34db8a7d7c4bc30e6081b', "score": 0.95},
-                {"id": '0b40eeb8cff64ac3a3fae568a748dd04', "score": 0.81},
-                {"id": '0b328f5537d14be4bbe800ced89b5eec', "score": 0.55},
-            ]
+            "tags": [{"name": tag} for tag in tags],
+            "images": [{"id": id} for id in pp_preds]
         },
     }
 
@@ -50,6 +59,7 @@ async def home(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
+    load_models()
     logger.info("started")
 
 

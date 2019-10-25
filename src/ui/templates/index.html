@@ -69,7 +69,7 @@
         </span>
       </h3>
       <ul v-if="tags.length">
-        <li v-for="tag in tags">{{ tag.name }}: {{ tag.score }}</li>
+        <li v-for="tag in tags">{{ tag.name }}</li>
       </ul>
       <div v-else>
         No tags.
@@ -86,7 +86,7 @@
         </span>
       </h3>
       <ul v-if="images.length">
-        <li v-for="image in images">{{ image.id }}: {{ image.score }}</li>
+        <li v-for="image in images">{{ image.id }}</li>
       </ul>
       <div v-else>
         No matches.
