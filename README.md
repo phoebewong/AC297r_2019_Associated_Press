@@ -11,6 +11,8 @@ To run the tests, run `pytest test_project.py` from the project root.
 
 You can `make api` to run locally. The app will be available at [http://localhost:8000](http://localhost:8000).
 
+For now, you might have to copy the `thumbnail` directory into `src > ui > static > img`. 
+
 ### Project Organization
 
     ├── Makefile

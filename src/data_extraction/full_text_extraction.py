@@ -1,5 +1,5 @@
 import json
-import constants
+from src import constants
 import os
 import configparser
 from article_item import ArticleItem
