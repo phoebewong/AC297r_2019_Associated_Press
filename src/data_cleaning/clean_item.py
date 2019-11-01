@@ -1,5 +1,6 @@
 import csv
 from src import constants
+from create_duplicates import modify_duplicates
 
 #cleaning history output
 history_dir = constants.HIST_DIR
@@ -51,6 +52,8 @@ def clean_csv(old_file, new_file, article = True):
                  num_obs_old += 1
                  if (check_removal(row[idx_iid], img_removal_file) == False) and (check_removal(row[idx_aid], article_removal_file) == False):
                      num_obs_new += 1
+                     #check if image is a duplicate and replace id
+                     row[idx_iid] = modify_duplicates(row[idx_iid])
                      csv_writer.writerow(row)
     print(f'pre-cleaning # observations: {num_obs_old}')
     print(f'post-cleaning # observations: {num_obs_new}')
