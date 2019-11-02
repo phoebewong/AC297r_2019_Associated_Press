@@ -9,8 +9,16 @@ def tagging_api(title, body, num=3):
     csv_file = constants.OUTPUT_CSV_DIR / 'article_person.csv'
     data = pd.read_csv(csv_file)
     all_tags = data['person_tag'].dropna().values
-    tags = all_tags[np.random.randint(low=0, high=len(all_tags), size=3)]
-    return tags
+    return all_tags[np.random.randint(low=0, high=len(all_tags), size=3)]
+
+def matching_articles(id):
+    """
+    Matching articles
+    """
+    csv_file = constants.OUTPUT_CSV_DIR / 'article_summary.csv'
+    data = pd.read_csv(csv_file)
+    all_headlines = data['headline'].dropna().values
+    return all_headlines[np.random.randint(low=0, high=len(all_headlines), size=3)]
 
 def postprocess(x):
     """

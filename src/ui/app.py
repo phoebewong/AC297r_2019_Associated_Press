@@ -1,6 +1,7 @@
 import os
 import logging
 import pickle
+import dill
 from src import api_helper
 
 import uvicorn
@@ -24,7 +25,8 @@ def load_models():
     global models
     with open('static/models/random_model.pkl', 'rb') as f:
         models['random_model'] = pickle.load(f)
-
+    with open('static/models/knn_model.pkl', 'rb') as f:
+        models['knn_model'] = dill.load(f)
 
 class ArticleInput(BaseModel):
     title: str = None
@@ -38,16 +40,26 @@ async def new_matches(article_input: ArticleInput):
     # get tags
     tags = api_helper.tagging_api(article_input.title, article_input.body)
 
-    # make a prediction with the model
-    data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))]]
+    # get matching articles
+    articles = api_helper.matching_articles(id='id1')
+
+    # make a prediction with the random model
+    data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))], [10] , [20], [30], [40]]
     prediction = models['random_model'].predict(data)
     pp_preds = api_helper.postprocess(prediction).flatten()
+
+    # make a prediction with the knn model
+    # data = ('00c6682106da42f299ab9955de385aa5', ['general news', 'police', 'law enforcement agencies', 'government and politics', 'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents', 'accidents', 'accidents and disasters', 'transportation'])
+    # prediction = models['knn_model'].predict(data)
+    # pp_preds = prediction.keys()
+    # print(pp_preds)
 
     return {
         "status": "ok",
         "data": {
             "tags": [{"name": tag} for tag in tags],
-            "images": [{"id": id} for id in pp_preds]
+            "images": [{"id": id} for id in pp_preds],
+            "articles": [{"headline": headline} for headline in articles],
         },
     }
 

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Article image matcher</title>
+  <title>Image Recommender for Articles</title>
 
   <!-- Third party CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
@@ -33,22 +33,23 @@
 <!-- Tool -->
 {% raw %}
 <div id="app" class="container-fluid mt-4">
-  <div class="row">
+  <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
-      <h3>Input</h3>
+      <h3 class="font-weight-light">Article Input</h3>
     </div>
   </div>
+
   <div class="row">
     <div class="col">
       <form class="form">
         <div class="row">
-          <div class="col-sm-11">
-            <input v-model="title" type="text" class="form-control" id="title" placeholder="Article title">
-            <input v-model="body" type="text" class="form-control" id="body" placeholder="Article body">
+          <div class="col-sm-12 mb-2">
+            <input v-model="title" type="text" class="form-control text-center mb-1" id="title" placeholder="Article title">
+            <input v-model="body" type="text" class="form-control text-center" id="body" placeholder="Article body">
           </div>
-          <div class="col-sm-1">
+          <div class="col-sm-12 text-center">
             <button type="submit"
-                    class="btn btn-primary float-right" style="width: 100%;"
+                    class="btn btn-primary float-center"
                     @click.prevent="getMatches"
                     :disabled="pending"
             >
@@ -60,51 +61,57 @@
     </div>
   </div>
 
-  <div class="row mt-4">
+  <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
-      <h3>
+      <h3 class="font-weight-light">
         Tags
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <ul v-if="tags.length">
-        <li v-for="tag in tags">{{ tag.name }}</li>
-      </ul>
+      <div v-if="tags.length">
+        <div v-for="tag in tags">{{ tag.name }}</div>
+      </div>
       <div v-else>
         No tags.
       </div>
     </div>
   </div>
 
-  <div class="row mt-4">
+  <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
-      <h3>
-        Matches
+      <h3 class="font-weight-light">
+        Similar Article Headlines
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <ul v-if="images.length">
-        <li v-for="image in images">{{ image.id }}</li>
-      </ul>
+      <div v-if="tags.length">
+        <div v-for="article in articles">{{ article.headline }}</div>
+      </div>
       <div v-else>
         No matches.
       </div>
     </div>
   </div>
 
-  <div class="row mt-4">
+  <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
-      <h3>
+      <h3 class="font-weight-light">
         Image Thumbnails
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <ul v-if="images.length">
-        <li v-for="image in images"><img :src="makeImgSource(image.id)"></li>
-      </ul>
+      <div v-if="images.length" class="container">
+        <div class="row text-center text-lg-left mb-3">
+          <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
+            <a href="#" class="d-block mb-4 h-100">
+              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+            </a>
+          </div>
+        </div>
+      </div>
       <div v-else>
         No thumbnails.
       </div>
