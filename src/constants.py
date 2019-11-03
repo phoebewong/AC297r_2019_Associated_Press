@@ -40,3 +40,7 @@ article_removal_hist_name = 'removed_article.txt'
 train_aid_filename = 'train_aid.txt'
 test_aid_filename = 'test_aid.txt'
 val_aid_filename = 'val_aid.txt'
+
+#pickle files
+word2idx_filename = 'word2idx.pkl'
+idx2word_filename = 'idx2word.pkl'
