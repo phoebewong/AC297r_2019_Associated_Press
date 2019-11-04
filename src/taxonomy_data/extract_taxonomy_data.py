@@ -1,13 +1,11 @@
 ###extract taxonomy datasets
-###for hierachical tag structures
-###extract taxonomy subsets
 
 import json
 import requests
-import constants
+from src import constants
 import configparser
 
-output_dir = constants.OUTPUT_CSV_DIR
+output_dir = constants.TAXONOMY_DIR
 
 if __name__ == '__main__':
 

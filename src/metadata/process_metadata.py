@@ -4,7 +4,7 @@
 #package dependency
 import json
 import numpy as np
-import constants
+from src import constants
 
 data_directory = constants.DATA_DIR
 full_text_dir = constants.FULL_TEXT_DIR_NAME
