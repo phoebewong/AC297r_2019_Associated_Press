@@ -93,3 +93,6 @@ target/
 
 # test case cache
 *.pytest_cache
+
+# stanford parser package
+stanford-parser-full-2018-10-17/
