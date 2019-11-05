@@ -38,26 +38,29 @@ async def new_matches(article_input: ArticleInput):
     logger.debug("trying to find good images for article: %s", article_input)
 
     # get tags
-    tags = api_helper.tagging_api(article_input.title, article_input.body)
-
-    # get matching articles
-    articles = api_helper.matching_articles(id='id1')
+    # tags = api_helper.tagging_api(article_input.title, article_input.body)
+    tags = ['general news', 'police', 'law enforcement agencies', 'government and politics',
+            'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents',
+            'accidents', 'accidents and disasters', 'transportation']
 
     # make a prediction with the random model
-    data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))], [10] , [20], [30], [40]]
-    prediction = models['random_model'].predict(data)
-    pp_preds = api_helper.postprocess(prediction).flatten()
+    # data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))], [10] , [20], [30], [40]]
+    # prediction = models['random_model'].predict(data)
+    # pp_preds = api_helper.postprocess(prediction).flatten()
 
     # make a prediction with the knn model
-    # data = ('00c6682106da42f299ab9955de385aa5', ['general news', 'police', 'law enforcement agencies', 'government and politics', 'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents', 'accidents', 'accidents and disasters', 'transportation'])
-    # prediction = models['knn_model'].predict(data)
-    # pp_preds = prediction.keys()
-    # print(pp_preds)
+    data = (tags)
+    article_ids, prediction = models['knn_model'].predict(data)
+
+    # get matching articles
+    articles = api_helper.matching_articles(article_ids)
+
+    pp_preds = prediction.keys()
 
     return {
         "status": "ok",
         "data": {
-            "tags": [{"name": tag} for tag in tags],
+            "tags": [{"name": tag} for tag in tags[0:3]],
             "images": [{"id": id} for id in pp_preds],
             "articles": [{"headline": headline} for headline in articles],
         },

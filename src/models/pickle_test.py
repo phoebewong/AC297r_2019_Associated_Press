@@ -6,7 +6,15 @@ if __name__ == '__main__':
         model = dill.load(f)
 
     # replace this with an example of data input
-    data = ('00c6682106da42f299ab9955de385aa5', ['general news', 'police', 'law enforcement agencies', 'government and politics', 'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents', 'accidents', 'accidents and disasters', 'transportation'])
+    data = (['general news', 'police', 'law enforcement agencies', 'government and politics', 'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents', 'accidents', 'accidents and disasters', 'transportation'])
+    predictions = model.predict(data)
+
+    # print predictions. if this works, the model will run on the UI
+    print(predictions)
+
+    # try again
+    # replace this with an example of data input
+    data = (['general news', 'police', 'law enforcement agencies', 'government and politics', 'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents', 'accidents', 'accidents and disasters', 'transportation'])
     predictions = model.predict(data)
 
     # print predictions. if this works, the model will run on the UI
