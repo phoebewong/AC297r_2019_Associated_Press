@@ -65,7 +65,7 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     else:
         return textrank_words[np.array(ne_count) > 0], textrank_score[np.array(ne_count) > 0], entities_scores
 
-def extract_textrank_from_text(doc, textrank_topn = 10, textrank_window = 3, rel_gp = ['PERSON', 'GPE'],
+def extract_textrank_from_text(doc, textrank_topn = 0.99, textrank_window = 3, rel_gp = ['PERSON', 'GPE'],
                                 use_spacy_entities = False, tagging_API_entities=None,
                                 return_textrank_bags = False):
     '''
@@ -87,6 +87,7 @@ def extract_textrank_from_text(doc, textrank_topn = 10, textrank_window = 3, rel
     # Get textrank keywords
     textrank_result = textacy.ke.textrank(doc, normalize="lemma", topn=textrank_topn, window_size=textrank_window)
     textrank_words, textrank_score = zip(*[(textrank[0], textrank[1]) for textrank in textrank_result])
+    print("Textrank words", textrank_words)
     if return_textrank_bags:
         return textrank_words, textrank_score
     # print(textrank_words)
