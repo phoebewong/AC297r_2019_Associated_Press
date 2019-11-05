@@ -42,6 +42,9 @@ for idx in img_ids:
         image.get_ot_importance() #get object tag importance
         ot_history[idx] = image.ot_importance
         st_history[idx] = image.st_importance
+        print(image.st_importance)
+        print(image.ot_importance)
+        print(time.time()-start_time)
         if track_progress in track_list[1:]:
             ot_history_save = dict(ot_history)
             st_history_save = dict(st_history)

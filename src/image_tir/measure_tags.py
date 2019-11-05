@@ -18,7 +18,7 @@ class MeasureTag:
     def __init__(self, idx, st_types, ot_types):
         self.idx = idx #image id
         self.scene_tag_types = st_types #list of scene tag types, csv suffix
-        self.object_tag_types = ot_types#list of object tag types, csv suffix
+        self.object_tag_types = ot_types #list of object tag types, csv suffix
         #attributes to update
         self.scene_tags = None
         self.object_tags = None
@@ -53,7 +53,7 @@ class MeasureTag:
                     #check validity of tag
                     if process_utils.if_valid(t):
                         #format string and record
-                        search_tags.append(t.lower())
+                        search_tags.append(t.lower().replace(',', ''))
             except:
                 continue
         #retrieve tags
@@ -63,7 +63,8 @@ class MeasureTag:
         "get list of descriptions for given image"
         if self.descriptions is None:
             descriptions = list()
-            summary_data = pd.read_csv(f'{data_directory}/{img_prefix}summary.csv')
+            file_path = f'{data_directory}/{img_prefix}summary.csv'
+            summary_data = pd.read_csv(file_path)
             subset = summary_data[summary_data.id == self.idx]
             for value in ['title', 'headline', 'headline_extended', 'summary']:
                 d = subset[value].values[0]
@@ -92,7 +93,6 @@ class MeasureTag:
             replace_tags = [[x in s for x in syns][0] if [x in s for x in syns][0] else tag for s in self.descriptions]
             #indicator vector
             i_tag = np.array([1 if any(item in s for item in syns) else 0 for s in self.descriptions])
-            # i_tag = np.array([1 if tag in s else 0 for s in self.descriptions])
             #update number of scene factor per description
             record_sts += i_tag
             #get scene factor weight
