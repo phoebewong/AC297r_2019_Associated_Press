@@ -4,6 +4,8 @@ from spacy.tokens import Doc
 import numpy as np
 import textacy.ke
 
+en = textacy.load_spacy_lang("en_core_web_sm", disable=("parser",))
+
 def get_textacy_name_entities(text, article_id, drop_determiners=True, exclude_types='numeric'):
     '''Get Named Entities using textacy
     text: full_text or summary
@@ -52,7 +54,7 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
         temp_score = 0
         for ix, entities in enumerate(np.unique(entities_list)): # for each named entities extracted
             if (entities in textrank):
-                print("entities included:", entities)
+                # print("entities included:", entities)
                 temp_score += 1
                 entities_scores[ix] += 1
             else:
@@ -65,7 +67,7 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     else:
         return textrank_words[np.array(ne_count) > 0], textrank_score[np.array(ne_count) > 0], entities_scores
 
-def extract_textrank_from_text(doc, textrank_topn = 0.99, textrank_window = 3, rel_gp = ['PERSON', 'GPE'],
+def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, rel_gp = ['PERSON', 'GPE'],
                                 use_spacy_entities = False, tagging_API_entities=None,
                                 return_textrank_bags = False):
     '''
@@ -84,10 +86,12 @@ def extract_textrank_from_text(doc, textrank_topn = 0.99, textrank_window = 3, r
     textrank_score: textrank importance score of textrank_entities (excluding those that do not contain named entities)
     entities_in_textrank: named entities that are included in the textrank bags
     '''
+    # Create spacy object
+    doc = textacy.make_spacy_doc(text, lang=en)
     # Get textrank keywords
     textrank_result = textacy.ke.textrank(doc, normalize="lemma", topn=textrank_topn, window_size=textrank_window)
     textrank_words, textrank_score = zip(*[(textrank[0], textrank[1]) for textrank in textrank_result])
-    print("Textrank words", textrank_words)
+    # print("Textrank words", textrank_words)
     if return_textrank_bags:
         return textrank_words, textrank_score
     # print(textrank_words)
@@ -108,4 +112,4 @@ def extract_textrank_from_text(doc, textrank_topn = 0.99, textrank_window = 3, r
     entities_scores = np.array(list(map(int, entities_scores)))
     # Return named entities extracted that existed in textrank keywords
     entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
-    return textrank_entities, textrank_score, entities_in_textrank
+    return textrank_entities, np.round(textrank_score, 2), entities_in_textrank
