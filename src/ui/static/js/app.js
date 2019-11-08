@@ -23,6 +23,7 @@ var vue = new Vue({
         if (response.body.status == "ok") {
           this.tags = response.body.data.tags;
           this.images = response.body.data.images;
+          this.articles = response.body.data.articles;
         }
         this.pending = false;
       }, response => {
