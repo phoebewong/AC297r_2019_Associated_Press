@@ -2,7 +2,7 @@ import requests
 import json
 import time
 from article_item import ArticleItem
-import constants
+from src import constants
 
 class MediaItem:
     '''

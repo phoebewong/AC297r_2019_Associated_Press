@@ -78,6 +78,7 @@ target/
 
 # exclude data from source control by default
 /data/
+*thumbnail/
 
 # Mac OS-specific storage files
 .DS_Store
@@ -87,8 +88,14 @@ target/
 *.swo
 *.ini
 
+# exclude models
+*.pkl
+
 # Mypy cache
 .mypy_cache/
 
 # test case cache
 *.pytest_cache
+
+# stanford parser package
+stanford-parser-full-2018-10-17/

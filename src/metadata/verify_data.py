@@ -1,4 +1,4 @@
-import constants
+from src import constants
 
 data_directory = constants.DATA_DIR
 data_truth = constants.DATA_TRUTH

@@ -1,7 +1,7 @@
 #dependencies
 import os
 import csv
-import constants
+from src import constants
 import json
 from extract_to_csv import info_to_csv, Summary, AP_Category, Subject, Person, Person_type, \
                            Person_team, Organisation, Org_industry, Place, Event
@@ -16,87 +16,118 @@ if_article = [True, False]
 
 if __name__ == '__main__':
     for dir in search:
-        print(f'Writing csv file for {dir}') #track progress
+        print(f'Writing csv files for {dir}') #track progress
         #get directory path
         full_path = f'{data_directory}/{dir}/'
+
+        #arguments for data extraction
+        funcs = list()
+        csv_paths = list()
+        feature_lists = list()
+        feature_list_args = list()
+        article_args = list()
+
         #summary csv
-        summary_name = 'summary'
-        summary_path = f'{output_directory}/{dir}_{summary_name}.csv'
-        summary_features = ['id', 'article_idx', 'content_type', 'language',
+        funcs.append(Summary)
+        summary_path = f'{output_directory}/{dir}_summary.csv'
+        csv_paths.append(summary_path)
+        summary_features = ['id', 'article_idx', 'version', 'version_created', 'content_type', 'language',
                             'city', 'country', 'long_lat', 'title', 'headline',
                             'headline_extended', 'summary']
-        #output unintended file names
-        info_to_csv(summary_name, Summary, summary_path, full_path,
-                    summary_features, feature_list = False, article = if_article[search.index(dir)],
-                    output_unintended = True)
+        if if_article[search.index(dir)]:
+            summary_features.append('full_text')
+        feature_lists.append(summary_features)
+        feature_list_args.append(False)
+        article_args.append(if_article[search.index(dir)])
 
         #ap category csv
-        ap_cat_name = 'ap_category'
-        ap_cat_path = f'{output_directory}/{dir}_{ap_cat_name}.csv'
+        funcs.append(AP_Category)
+        ap_cat_path = f'{output_directory}/{dir}_ap_category.csv'
+        csv_paths.append(ap_cat_path)
         ap_cat_features = ['id', 'article_idx', 'category_name',
                            'category_relation', 'category_code']
-        info_to_csv(ap_cat_name, AP_Category, ap_cat_path, full_path,
-                    ap_cat_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(ap_cat_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #subject tag csv
-        subject_name = 'subject'
-        subject_path = f'{output_directory}/{dir}_{subject_name}.csv'
+        funcs.append(Subject)
+        subject_path = f'{output_directory}/{dir}_subject.csv'
+        csv_paths.append(subject_path)
         subject_features = ['id', 'article_idx', 'subject_tag',
                             'subject_tag_relation', 'subject_tag_code']
-        info_to_csv(subject_name, Subject, subject_path, full_path,
-                    subject_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(subject_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #person tag csv
-        person_name = 'person'
-        person_path = f'{output_directory}/{dir}_{person_name}.csv'
+        funcs.append(Person)
+        person_path = f'{output_directory}/{dir}_person.csv'
+        csv_paths.append(person_path)
         person_features = ['id', 'article_idx', 'person_tag',
                            'person_tag_relation', 'person_tag_code']
-        info_to_csv(person_name, Person, person_path, full_path,
-                    person_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(person_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #person type csv
-        person_type_name = 'person_type'
-        person_type_path = f'{output_directory}/{dir}_{person_type_name}.csv'
+        funcs.append(Person_type)
+        person_type_path = f'{output_directory}/{dir}_person_type.csv'
+        csv_paths.append(person_type_path)
         person_type_features = ['id', 'article_idx', 'person_tag',
                                 'person_tag_code','person_type']
-        info_to_csv(person_type_name, Person_type, person_type_path, full_path,
-                    person_type_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(person_type_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #person team csv
-        person_team_name = 'person_team'
-        person_team_path = f'{output_directory}/{dir}_{person_team_name}.csv'
+        funcs.append(Person_team)
+        person_team_path = f'{output_directory}/{dir}_person_team.csv'
+        csv_paths.append(person_team_path)
         person_team_features = ['id', 'article_idx', 'person_tag',
                                 'person_tag_code','person_team_tag', 'person_team_code']
-        info_to_csv(person_team_name, Person_team, person_team_path, full_path,
-                    person_team_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(person_team_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #organisation csv
-        org_name = 'org'
-        org_path = f'{output_directory}/{dir}_{org_name}.csv'
+        funcs.append(Organisation)
+        org_path = f'{output_directory}/{dir}_org.csv'
+        csv_paths.append(org_path)
         org_features = ['id', 'article_idx', 'org_tag',
                         'org_tag_relation', 'org_tag_code']
-        info_to_csv(org_name, Organisation, org_path, full_path,
-                    org_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(org_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #organisation industry csv
-        org_industry_name = 'org_industry'
-        org_industry_path = f'{output_directory}/{dir}_{org_industry_name}.csv'
+        funcs.append(Org_industry)
+        org_industry_path = f'{output_directory}/{dir}_org_industry.csv'
+        csv_paths.append(org_industry_path)
         org_industry_features = ['id', 'article_idx', 'org_tag',
                                  'org_tag_code', 'org_industry_tag', 'org_industry_code']
-        info_to_csv(org_industry_name, Org_industry, org_industry_path, full_path,
-                    org_industry_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(org_industry_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #associated place csv
-        place_name = 'place'
-        place_path = f'{output_directory}/{dir}_{place_name}.csv'
+        funcs.append(Place)
+        place_path = f'{output_directory}/{dir}_place.csv'
+        csv_paths.append(place_path)
         place_features = ['id', 'article_idx', 'place_tag',
                           'place_tag_relation', 'place_tag_code']
-        info_to_csv(place_name, Place, place_path, full_path,
-                    place_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(place_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
 
         #event csv
-        event_name = 'event'
-        event_path = f'{output_directory}/{dir}_{event_name}.csv'
+        funcs.append(Event)
+        event_path = f'{output_directory}/{dir}_event.csv'
+        csv_paths.append(event_path)
         event_features = ['id', 'article_idx', 'event_tag', 'place_tag_code']
-        info_to_csv(event_name, Event, event_path, full_path,
-                    event_features, feature_list = True, article = if_article[search.index(dir)])
+        feature_lists.append(event_features)
+        feature_list_args.append(True)
+        article_args.append(if_article[search.index(dir)])
+
+        #extract to csv
+        info_to_csv(funcs , csv_paths, full_path, feature_lists, feature_list_args, article_args)
