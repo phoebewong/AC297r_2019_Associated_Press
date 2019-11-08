@@ -44,7 +44,8 @@ net = model_zoo.get_model('faster_rcnn_resnet50_v1b_voc', pretrained=True)
 all_files = listdir(constants.THUMBNAIL_DIR)
 rand_num = np.random.randint(0, len(all_files))
 img_id = str(all_files[rand_num]).split('.')[0]
-im_fname = constants.THUMBNAIL_DIR / str(all_files[rand_num])
+# im_fname = constants.THUMBNAIL_DIR / str(all_files[rand_num])
+im_fname = 'pope2.png'
 x, orig_img = data.transforms.presets.rcnn.load_test(str(im_fname))
 
 
