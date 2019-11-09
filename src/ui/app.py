@@ -3,6 +3,7 @@ import logging
 import pickle
 import dill
 from src import api_helper
+from src.nlp_util.textacy_util import *
 
 import uvicorn
 from fastapi import FastAPI
@@ -43,10 +44,23 @@ async def new_matches(article_input: ArticleInput):
             'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents',
             'accidents', 'accidents and disasters', 'transportation']
 
+    # Example tags from AP tagging API from article id "0a0e0db8ae42425897b6381481663611"
+    AP_tags = ['General news', 'Government and politics',
+       'Funerals and memorial services', 'Recep Tayyip Erdogan',
+       'Kemal Kilicdaroglu', 'Ankara', 'Turkey', 'Western Europe',
+       'Europe', 'Middle East', 'Turkey government']
+    tags_type = ['subject', 'subject', 'subject', 'person', 'person', 'place',
+       'place', 'place', 'place', 'place', 'org']
     # make a prediction with the random model
     # data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))], [10] , [20], [30], [40]]
     # prediction = models['random_model'].predict(data)
     # pp_preds = api_helper.postprocess(prediction).flatten()
+
+    # Get textrank bags of words, importance score and AP tags (that are bags of words)
+    textrank_entities, textrank_score, entities_list = extract_textrank_from_text(article_input.body, tagging_API_entities = AP_tags)
+    print(textrank_entities)
+    print(textrank_score)
+    print(entities_list)
 
     # make a prediction with the knn model
     data = (tags)
@@ -60,7 +74,7 @@ async def new_matches(article_input: ArticleInput):
     return {
         "status": "ok",
         "data": {
-            "tags": [{"name": tag} for tag in tags[0:3]],
+            "tags": [{"name": tag, "score": textrank_score[ix]} for ix, tag in enumerate(entities_list)],
             "images": [{"id": id} for id in pp_preds],
             "articles": [{"headline": headline} for headline in articles],
         },

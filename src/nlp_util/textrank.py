@@ -2,7 +2,7 @@ from collections import OrderedDict
 import spacy
 nlp = spacy.load('en_core_web_sm')
 import numpy as np
-
+# DEPRECATED FOR NOW (OCT 24, 2019)
 class TextRank4Keyword():
     """Extract keywords from text"""
 

@@ -26,3 +26,4 @@ nltk
 scikit-learn
 spacy
 image
+textacy
