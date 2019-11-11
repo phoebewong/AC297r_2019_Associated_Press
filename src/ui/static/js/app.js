@@ -32,8 +32,8 @@ var vue = new Vue({
         this.pending = false;
       });
     },
-    makeImgSource(img_id){
-      return 'static/img/thumbnail/' + img_id + '.jpg'
+    makeImgSource(img_id, cat='preview'){
+      return 'static/img/' + cat + '/' + img_id + '.jpg'
     }
   },
   computed: {},

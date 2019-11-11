@@ -2,6 +2,7 @@ import json
 from src import constants
 import os
 import configparser
+import time, datetime
 from image_item import ImageItem
 
 if __name__ == '__main__':
@@ -14,11 +15,14 @@ if __name__ == '__main__':
 
     # looking for all json files in our folder
     images = [file for file in os.listdir(folder) if file.endswith('.json')]
+    start_time = time.time()
 
     # going through the files and saving the full text to file
     for i, file in enumerate(images):
-        if i % 100 == 0:
-            print('{} out of {} done'.format(i, len(images)))
+        if i % 10000 == 0:
+            now = datetime.datetime.now().time()
+            print('{} out of {} done. time: {}. elapsed: {}s'.format(i, len(images), now, int(time.time() - start_time)))
         with open('{}/{}'.format(folder, file)) as json_file:
             json_data = json.load(json_file)
-            image_item = ImageItem(raw_json=None, full_json=json_data).get_images(apikey)
+            # image_item = ImageItem(raw_json=None, full_json=json_data).get_image_previews(apikey)
+            image_item = ImageItem(raw_json=None, full_json=json_data).check_thumbnail_previews()

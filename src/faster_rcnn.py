@@ -7,6 +7,7 @@ import gluoncv
 from gluoncv import model_zoo, data, utils
 import mxnet as mx
 from os import listdir
+import time
 
 def box_params(orig_shape, coords):
     """
@@ -36,35 +37,43 @@ def box_params(orig_shape, coords):
 
 # loading the faster RCNN model
 net = model_zoo.get_model('faster_rcnn_resnet50_v1b_voc', pretrained=True)
+# net = model_zoo.get_model('faster_rcnn_resnet50_v1b_coco', pretrained=True)
+# net = model_zoo.get_model('yolo3_darknet53_coco', pretrained=True)
 
 # x: NDArray, can be fed into the model directly
 # orig_img: can be plotted using matplotlib
 # resized image short length is 600px
 
+start_time = time.time()
 all_files = listdir(constants.THUMBNAIL_DIR)
 rand_num = np.random.randint(0, len(all_files))
 img_id = str(all_files[rand_num]).split('.')[0]
-# im_fname = constants.THUMBNAIL_DIR / str(all_files[rand_num])
-im_fname = 'pope2.png'
+im_fname = constants.THUMBNAIL_DIR / str(all_files[rand_num])
 x, orig_img = data.transforms.presets.rcnn.load_test(str(im_fname))
-
+plot = True
+xlabel = ''
 
 # inference and display
 box_ids, scores, bboxes = net(x)
-ax = utils.viz.plot_bbox(orig_img, bboxes[0], scores[0], box_ids[0], class_names=net.classes)
 box_ids, scores, bboxes = box_ids.asnumpy(), scores.asnumpy(), bboxes.asnumpy()
 
+# counting number of people
 indices = (scores[0] > 0.6).flatten()
 person_ind = net.classes.index("person")
 
 num_people = np.sum(box_ids[0][indices].flatten() == person_ind)
-plt.title('img id: {}. num people: {}'.format(img_id, num_people))
 
 # calculating area of bounding box and distance from center when there is 1 person in the image
 if num_people == 1:
     id = box_ids[0][indices].flatten() == person_ind
     box = bboxes[0][indices][id].flatten()
     area, dist = box_params(orig_img.shape, box)
-    plt.xlabel('area ratio = {}, dist = {}'.format(area, dist))
+    xlabel = 'area ratio = {}, dist = {}'.format(area, dist)
 
-plt.show()
+print(time.time() - start_time)
+
+if plot == True:
+    ax = utils.viz.plot_bbox(orig_img, bboxes[0], scores[0], box_ids[0], class_names=net.classes)
+    plt.title('img id: {}. num people: {}'.format(img_id, num_people))
+    plt.xlabel(xlabel)
+    plt.show()
