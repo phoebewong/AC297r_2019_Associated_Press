@@ -3,6 +3,7 @@ import logging
 import pickle
 import dill
 from src import api_helper
+import numpy as np
 
 import uvicorn
 from fastapi import FastAPI
@@ -44,9 +45,9 @@ async def new_matches(article_input: ArticleInput):
             'accidents', 'accidents and disasters', 'transportation']
 
     # make a prediction with the random model
-    # data = [[len(article_input.title)], [len(article_input.body)], [len(article_input.body.split(' '))], [10] , [20], [30], [40]]
-    # prediction = models['random_model'].predict(data)
-    # pp_preds = api_helper.postprocess(prediction).flatten()
+    data = [[np.random.randint(0,75000)] for i in range(20)]
+    prediction = models['random_model'].predict(data)
+    pp_preds = api_helper.postprocess(prediction).flatten()
 
     # make a prediction with the knn model
     data = (tags)
@@ -55,7 +56,7 @@ async def new_matches(article_input: ArticleInput):
     # get matching articles
     articles = api_helper.matching_articles(article_ids)
 
-    pp_preds = prediction.keys()
+    # pp_preds = prediction.keys()
 
     return {
         "status": "ok",
