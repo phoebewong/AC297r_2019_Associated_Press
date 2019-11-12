@@ -4,6 +4,7 @@ import pickle
 import dill
 from src import api_helper
 import numpy as np
+from src.nlp_util.textacy_util import *
 
 import uvicorn
 from fastapi import FastAPI
@@ -59,12 +60,14 @@ async def new_matches(article_input: ArticleInput):
     # get matching articles
     articles = api_helper.matching_articles(article_ids)
 
+    textrank_entities, textrank_score, entities_list = extract_textrank_from_text(article_input.body, tagging_API_entities = tags)
+
     pp_preds = prediction.keys()
 
     return {
         "status": "ok",
         "data": {
-            "tags": [{"name": tag, "type": tag_types[i], "score": 0.4} for i, tag in enumerate(tags)],
+            "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
             "images": [{"id": id} for id in pp_preds],
             "articles": [{"headline": headline} for headline in articles],
             "true_images": [{"id": id} for id in true_images]
