@@ -70,7 +70,7 @@
         </span>
       </h3>
       <div v-if="tags.length">
-        <div v-for="tag in tags">{{ tag.name }}</div>
+        <div v-for="tag in tags">{{ tag.name }}: {{ tag.type }}: {{ tag.score }}</div>
       </div>
       <div v-else>
         No tags.
@@ -106,6 +106,29 @@
       <div v-if="images.length" class="container">
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
+            <a href="#" class="d-block mb-4 h-100">
+              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+            </a>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        No thumbnails.
+      </div>
+    </div>
+  </div>
+
+  <div class="font-weight-light text-center row mt-4 mb-0">
+    <div class="col">
+      <h3 class="font-weight-light">
+        True Images
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <div v-if="images.length" class="container">
+        <div class="row text-center text-lg-left mb-3">
+          <div v-for="image in true_images" class="col-lg-3 col-md-4 col-6">
             <a href="#" class="d-block mb-4 h-100">
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
             </a>
