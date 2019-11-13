@@ -47,7 +47,6 @@ def get_scene_factors(pps, tags):
 def get_synonyms(phrase):
     "get set of synonyms using wordnet"
     syns = list()
-    syns.append(phrase)
     if ' ' in phrase:
         #concatenate phrases if applies
         phrase = phrase.replace(' ', '_')
