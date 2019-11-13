@@ -1,4 +1,5 @@
 #dependencies
+import re
 import sys
 from src import constants
 sys.path.append(str(constants.PREPROCESSING_DIR))
@@ -26,8 +27,6 @@ class MeasureTag:
         self.st_importance = None
         self.ot_importance = None
         self.pps = None
-        self.sf_weights = None
-        self.num_sts = None
 
     def get_tags(self, tag_types):
         '''
@@ -82,33 +81,26 @@ class MeasureTag:
             self.scene_tags = self.get_tags(self.scene_tag_types)
 
         importance = defaultdict(float)
-        #scene factor weights for object tag computation
-        record_weights = 1
-        #number of scene factor per description for object tag computation
-        record_sts = 0
         for tag in self.scene_tags:
             #get synonym for tag
-            syns = parse_grammar.get_synonyms(tag)
+            syns = '|'.join(parse_grammar.get_synonyms(tag))
+            if syns == '':
+                syns = tag
+            #try finding synonyms in sentences
+            match_sentences = [re.findall(syns, s) for s in self.descriptions]
             #replace tag with synonym if applies
-            replace_tags = [[x in s for x in syns][0] if [x in s for x in syns][0] else tag for s in self.descriptions]
+            tag_vec = [ms[0] if len(ms) > 0 else tag for ms in match_sentences]
             #indicator vector
-            i_tag = np.array([1 if any(item in s for item in syns) else 0 for s in self.descriptions])
-            #update number of scene factor per description
-            record_sts += i_tag
+            i_tag = np.array([1 if len(ms) > 0 else 0 for ms in match_sentences])
             #get scene factor weight
-            css = parse_grammar.get_scene_factors(self.pps, replace_tags)
+            css = parse_grammar.get_scene_factors(self.pps, tag_vec)
             #mute tag that doesn't exist in sentence
             cs_vec = i_tag * css
-            #updating weights for object tag computation : 1+cs
-            update_weights = np.array([1 if i_tag[m] == 0 else 1+css[m] for m in range(len(i_tag))])
-            record_weights *= update_weights
             #average scene tag across descriptions
             imp = np.mean(cs_vec/(1+cs_vec))
             importance[tag] = imp
 
         self.st_importance = dict(importance)
-        self.sf_weights = record_weights
-        self.num_sts = record_sts
 
     def get_ot_importance(self):
         "get object tag importances"
@@ -122,17 +114,14 @@ class MeasureTag:
         else:
             importance = defaultdict(float)
             #set of all object tags in sentence
-            ot_set = [[ot for ot in self.object_tags if ot in s] for s in self.descriptions]
+            re_ot = '|'.join(self.object_tags)
+            ot_set = [re.findall(re_ot, s) for s in self.descriptions]
             #number of object tags
-            num_ots = np.array([len(ot) for ot in ot_set])
-
+            num_ots = np.array([len(ot) if len(ot) > 0 else 1e9 for ot in ot_set])
             for tag in self.object_tags:
-                #numpy ignore division by 0 error
-                #when description contains 0 object tags
-                np.seterr(divide='ignore', invalid='ignore')
                 #indicator vector, whether object tag exist in description
                 i_vec = np.array([1 if tag in s else 0 for s in self.descriptions])
                 #average object tag weights across total number of descriptions
-                imp = np.nansum(np.divide(i_vec, (num_ots**self.num_sts)*self.sf_weights)) / len(self.descriptions)
+                imp = np.mean(np.divide(i_vec, num_ots))
                 importance[tag] = imp
             self.ot_importance = dict(importance)

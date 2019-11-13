@@ -28,18 +28,19 @@ st_history = defaultdict(dict)
 
 track_progress = start_idx
 track_list = np.arange(1, int(len(img_ids)), 1000)
-start_time = time.time()
 
 for idx in img_ids:
     track_progress += 1
-    if track_progress % 100 == 0:
-        print(f'Processing time: {time.time() - start_time}')
-        print(f'Working on image #{track_progress}\n')
     try:
+        if track_progress % 50 == 0:
+            print(f'Working on image #{track_progress}')
+            start_time = time.time()
         image = MeasureTag(idx, st_types, ot_types)
         image.get_descriptions() #get image descriptions
         image.get_st_importance() #get scene tag importance
         image.get_ot_importance() #get object tag importance
+        if track_progress % 50 == 0:
+            print(f'Processing time: {time.time() - start_time}\n')
         ot_history[idx] = image.ot_importance
         st_history[idx] = image.st_importance
         if track_progress in track_list[1:]:
