@@ -53,10 +53,29 @@ class KNN():
         pass
 
 if __name__ == '__main__':
-    csv_file = constants.CLEAN_DIR / 'article_subject.csv'
-    df = pd.read_csv(csv_file)
-    g = df.groupby("id")["subject_tag"]
-    train = g.apply(lambda x: list(x.astype(str).str.lower()))
+    # read in article tags
+    tag_ref = {'ap_category':'category_code',
+           'event':'event_tag',
+           'org':'org_tag',
+           'org_industry':'org_industry_tag',
+           'person':'person_tag',
+           'person_team':'person_team_tag',
+           'person_type':'person_type',
+           'place':'place_tag',
+           'subject':'subject_tag',
+           'summary':'headline_extended'
+          }
+    train = pd.Series([])
+    for csv_file in os.listdir(constants.CLEAN_DIR):
+        if 'article' in csv_file: 
+            df = pd.read_csv(constants.CLEAN_DIR / csv_file)
+            feat = csv_file[8:-4]
+            g = df.groupby("id")[tag_ref[feat]]
+            if train.empty:
+                train = g.apply(lambda x: list(x.astype(str).str.lower()))
+            else:
+                g = g.apply(lambda x: list(x.astype(str).str.lower()))
+                train = train.combine(g, lambda x1, x2: list(set(x1+x2)), fill_value=[])
 
     # images associated with an article
     df = pd.read_csv(constants.CLEAN_DIR / 'image_summary.csv')
