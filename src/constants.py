@@ -49,3 +49,10 @@ idx2word_filename = 'idx2word.pkl'
 #json files prefix
 img_ot_filename = 'object_tag_importance'
 img_st_filename = 'scene_tag_importance'
+tag_idx_filename = 'tag_idx.json'
+img_idx_filename = 'img_idx.json'
+obj_imp_filename = 'object_tag_importance_all.json'
+scn_imp_filename = 'scene_tag_importance_all.json'
+
+#npz file name
+imp_matrix_filename = 'imp_matrix.npz'
