@@ -53,9 +53,9 @@ class KNN():
         pass
 
 if __name__ == '__main__':
-    csv_file = constants.CLEAN_DIR / 'article_subject.csv'
+    csv_file = constants.CLEAN_DIR / 'article_place.csv'
     df = pd.read_csv(csv_file)
-    g = df.groupby("id")["subject_tag"]
+    g = df.groupby("id")["place_tag"]
     train = g.apply(lambda x: list(x.astype(str).str.lower()))
 
     # images associated with an article

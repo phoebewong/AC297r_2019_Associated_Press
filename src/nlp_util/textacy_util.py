@@ -10,7 +10,6 @@ def get_textacy_name_entities(text, article_id, drop_determiners=True, exclude_t
     '''Get Named Entities using textacy
     text: full_text or summary
     article_id: string, article id (names of json files)
-
     Return a pd dataframe with two columns: named entities and entities category
     '''
 
@@ -96,8 +95,7 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     # Get textrank keywords
     textrank_result = textacy.ke.textrank(doc, normalize="lemma", topn=textrank_topn, window_size=textrank_window)
     textrank_words, textrank_score = zip(*[(textrank[0], textrank[1]) for textrank in textrank_result])
-    print("Textrank words", textrank_words)
-    print("Textrank score", textrank_score)
+
     if return_textrank_bags:
         return textrank_words, textrank_score
     # print(textrank_words)
