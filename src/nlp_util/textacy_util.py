@@ -42,21 +42,24 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     Parameters:
     textrank_words: numpy array of textrank ngram tokens
     entities_list: list or numpy array of named entities extracted
+
     Return:
     A numpy array of textrank ngram tokens that contain named entities extracted
     '''
     ne_count = []
+    entities_tr_score = []
     entities_scores = np.zeros(len(entities_list))
     entities_list = np.unique(entities_list)
     print("Entities before textrank:", entities_list)
     # print("entities_list", entities_list)
     entities_output = []
-    for textrank in textrank_words: # for each textrank ngram token
+    for rank_ix, textrank in enumerate(textrank_words): # for each textrank ngram token
         temp_score = 0
         for ix, entities in enumerate(entities_list): # for each named entities extracted
             if (entities in textrank):
                 temp_score += 1
                 entities_scores[ix] += 1
+                entities_tr_score.append(textrank_score[rank_ix])
                 entities_output.append(entities) # output named entities
             else:
                 temp_score = temp_score
@@ -64,9 +67,9 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
         ne_count.append(temp_score)
     textrank_score = np.array(textrank_score)
     if return_count:
-        return textrank_words[np.array(ne_count) > 0], textrank_score[np.array(ne_count) > 0], entities_output, entities_scores, np.array(ne_count)
+        return textrank_words[np.array(ne_count) > 0], entities_tr_score, entities_output, entities_scores, np.array(ne_count)
     else:
-        return textrank_words[np.array(ne_count) > 0], textrank_score[np.array(ne_count) > 0], entities_output, entities_scores
+        return textrank_words[np.array(ne_count) > 0], entities_tr_score, entities_output, entities_scores
 
 def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, rel_gp = ['PERSON', 'GPE'],
                                 use_spacy_entities = False, tagging_API_entities=None,
@@ -81,6 +84,7 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     use_spacy_entities: default False, True if wants to use spacy NER instead of tagging api
     tagging_API_entities: a numpy array of entities extracted from tagging API, only used when use_spacy_entities=False
     return_textrank_bags: default False, True if only wants to use textrank scores (and no entities)
+
     Return:
     textrank_entities: A numpy array of textrank ngram tokens that contain named entities extracted
     textrank_score: textrank importance score of textrank_entities (excluding those that do not contain named entities)
@@ -91,7 +95,7 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     # Get textrank keywords
     textrank_result = textacy.ke.textrank(doc, normalize="lemma", topn=textrank_topn, window_size=textrank_window)
     textrank_words, textrank_score = zip(*[(textrank[0], textrank[1]) for textrank in textrank_result])
-    # print("Textrank words", textrank_words)
+
     if return_textrank_bags:
         return textrank_words, textrank_score
     # print(textrank_words)
@@ -112,4 +116,4 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     entities_scores = np.array(list(map(int, entities_scores)))
     # Return named entities extracted that existed in textrank keywords
     # entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
-    return textrank_entities, np.round(textrank_score, 2), entities_output
+    return textrank_entities, np.round(textrank_score, 5), entities_output

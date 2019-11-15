@@ -18,6 +18,7 @@ TRAIN_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'train'
 TEST_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'test'
 VAL_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'val'
 STANFORD_PARSER = PROJECT_ROOT / 'stanford-parser-full-2018-10-17'
+PREPROCESSING_DIR = PROJECT_ROOT / 'src' / 'preprocessing'
 
 #train test split params
 data_split_random_state = 8
@@ -45,3 +46,15 @@ val_aid_filename = 'val_aid.txt'
 #pickle files
 word2idx_filename = 'word2idx.pkl'
 idx2word_filename = 'idx2word.pkl'
+
+#json files prefix
+img_ot_filename = 'object_tag_importance'
+img_st_filename = 'scene_tag_importance'
+tag_idx_filename = 'tag_idx.json'
+img_idx_filename = 'img_idx.json'
+obj_imp_filename = 'object_tag_importance_all.json'
+scn_imp_filename = 'scene_tag_importance_all.json'
+
+#npz file name
+imp_matrix_filename = 'imp_matrix.npz'
+ind_matrix_filename = 'ind_matrix.npz'
