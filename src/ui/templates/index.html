@@ -106,7 +106,9 @@
       <div v-if="images.length" class="container">
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
-            <div class="d-block mb-4 h-100">
+            <div class="d-block mb-4 h-100 text-center">
+              <button type="button" class="btn btn-success">Accept</button>
+              <button type="button" class="btn btn-danger">Reject</button>
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
               <p> {{ image.caption }} </p>
             </div>
