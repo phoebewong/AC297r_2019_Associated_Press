@@ -29,8 +29,8 @@ def load_models():
         models['random_model'] = pickle.load(f)
     with open('static/models/knn_model.pkl', 'rb') as f:
         models['knn_model'] = dill.load(f)
-    with open('static/models/knn_model_place.pkl', 'rb') as f:
-        models['knn_model_place'] = dill.load(f)
+    # with open('static/models/knn_model_place.pkl', 'rb') as f:
+    #     models['knn_model_place'] = dill.load(f)
 
 class ArticleInput(BaseModel):
     title: str = None
@@ -51,22 +51,22 @@ async def new_matches(article_input: ArticleInput):
     #         'accidents', 'accidents and disasters', 'transportation']
 
     # Example tags from AP tagging API from article id "0a0e0db8ae42425897b6381481663611"
-    AP_tags = ['General news', 'Government and politics',
-       'Funerals and memorial services', 'Recep Tayyip Erdogan',
-       'Kemal Kilicdaroglu', 'Ankara', 'Turkey', 'Western Europe',
-       'Europe', 'Middle East', 'Turkey government']
-    tags_type = ['subject', 'subject', 'subject', 'person', 'person', 'place',
-       'place', 'place', 'place', 'place', 'org']
+    # AP_tags = ['General news', 'Government and politics',
+    #    'Funerals and memorial services', 'Recep Tayyip Erdogan',
+    #    'Kemal Kilicdaroglu', 'Ankara', 'Turkey', 'Western Europe',
+    #    'Europe', 'Middle East', 'Turkey government']
+    # tags_type = ['subject', 'subject', 'subject', 'person', 'person', 'place',
+    #    'place', 'place', 'place', 'place', 'org']
     # make a prediction with the random model
     # data = [[np.random.randint(0,75000)] for i in range(20)]
     # prediction = models['random_model'].predict(data)
     # pp_preds = api_helper.postprocess(prediction).flatten()
 
     # Get textrank bags of words, importance score and AP tags (that are bags of words)
-    textrank_entities, textrank_score, entities_list = extract_textrank_from_text(article_input.body, tagging_API_entities = AP_tags)
-    print(textrank_entities)
-    print(textrank_score)
-    print(entities_list)
+    # textrank_entities, textrank_score, entities_list = extract_textrank_from_text(article_input.body, tagging_API_entities = AP_tags)
+    # print(textrank_entities)
+    # print(textrank_score)
+    # print(entities_list)
 
     # make a prediction with the knn model
     article_ids, prediction = models['knn_model'].predict((tags))
