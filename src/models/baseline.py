@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 # nltk.download('wordnet')
-from nltk.corpus import wordnet 
+from nltk.corpus import wordnet
 
 ### FUNCTIONS ###
 
@@ -28,12 +28,12 @@ def tfidf_score(tfidf_df, text, img):
             if t == i:
                 score += ref[i]
     return score
-    
+
 
 # baseline model
-# ranks images based on tag overlap 
-def baseline_model(text, images, n, score): 
-    ranks = {} # top ten images 
+# ranks images based on tag overlap
+def baseline_model(text, images, n, score):
+    ranks = {} # top ten images
     for img in images:
         s = score(text, img)
         if len(ranks) < n:
@@ -66,4 +66,4 @@ if __name__ == "__main__":
     tfidf_df.set_index('label',inplace=True)
     print('TF-IDF Score:',baseline_model(text_tags, images, 2, lambda x,y: tfidf_score(tfidf_df,x,y)))
 
-    # evaluation 
+    # evaluation

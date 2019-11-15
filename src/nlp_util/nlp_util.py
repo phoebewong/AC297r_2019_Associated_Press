@@ -1,6 +1,6 @@
 import spacy
 import pandas as pd
-
+## DEPRACASTED FOR NOW (Oct 24, 2019)
 def get_name_entity(doc, labels = None):
     """
     Return a dataframe of name entity when given a spacy doc of text
