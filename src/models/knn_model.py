@@ -65,9 +65,11 @@ if __name__ == '__main__':
            'subject':'subject_tag',
            'summary':'headline_extended'
           }
+
+    article_feat_csvs = ['article_person.csv','article_org.csv','article_place.csv','article_subject.csv']
     train = pd.Series([])
     for csv_file in os.listdir(constants.CLEAN_DIR):
-        if 'article' in csv_file: 
+        if csv_file in article_feat_csvs: 
             df = pd.read_csv(constants.CLEAN_DIR / csv_file)
             feat = csv_file[8:-4]
             g = df.groupby("id")[tag_ref[feat]]
