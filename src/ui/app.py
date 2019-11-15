@@ -44,8 +44,9 @@ async def new_matches(article_input: ArticleInput):
     # get tags
     id, tags, tag_types = api_helper.tagging_api(article_input.title, article_input.body)
     true_images = api_helper.article_images(id)
+    true_captions = api_helper.image_captions(true_images)
 
-    # tags = ['general news', 'police', 'law enforcement agencies', 'government and politics',
+    # knn_tags = ['general news', 'police', 'law enforcement agencies', 'government and politics',
     #         'robbery', 'theft', 'crime', 'automotive accidents', 'transportation accidents',
     #         'accidents', 'accidents and disasters', 'transportation']
 
@@ -55,7 +56,7 @@ async def new_matches(article_input: ArticleInput):
     # pp_preds = api_helper.postprocess(prediction).flatten()
 
     # make a prediction with the knn model
-    article_ids, prediction = models['knn_model_place'].predict(tags)
+    article_ids, prediction = models['knn_model'].predict((tags))
 
     # get matching articles
     articles = api_helper.matching_articles(article_ids)
@@ -63,14 +64,15 @@ async def new_matches(article_input: ArticleInput):
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(article_input.body, tagging_API_entities = tags)
 
     pp_preds = prediction.keys()
+    pred_captions = api_helper.image_captions(pp_preds)
 
     return {
         "status": "ok",
         "data": {
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
-            "images": [{"id": id} for id in pp_preds],
+            "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(pp_preds)],
             "articles": [{"headline": headline} for headline in articles],
-            "true_images": [{"id": id} for id in true_images]
+            "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
     }
 

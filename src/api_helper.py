@@ -24,6 +24,22 @@ def article_images(id):
     images = subset[subset['article_idx'] == id]['id'].values
     return images
 
+def image_captions(ids):
+    """
+    Gets the image caption for an image
+    """
+    csv_file = constants.CLEAN_DIR / 'image_summary.csv'
+    data = pd.read_csv(csv_file)
+    subset = data[['id', 'headline']]
+    captions = []
+    for id in ids:
+        try:
+            caption = subset[subset['id'] == id]['headline'].values[0]
+        except:
+            caption = 'No Caption'
+        captions.append(caption)
+    return captions
+
 def tagging_api(title, body):
     """
     Tags articles (at the moment it gets tags from the dataset)
@@ -103,3 +119,5 @@ if __name__ == '__main__':
     print(all_tags)
     images = article_images(id)
     print(images)
+    captions = image_captions(images)
+    print(captions)
