@@ -24,6 +24,7 @@ scn_imp_filename = constants.scn_imp_filename
 tag_idx_filename = constants.tag_idx_filename
 img_idx_filename = constants.img_idx_filename
 imp_matrix_filename = constants.imp_matrix_filename
+ind_matrix_filename = constants.ind_matrix_filename
 
 
 def get_tag_idx_dictionary(tags, output_directory):
@@ -67,7 +68,7 @@ def get_img_idx_dictionary(output_directory):
         json.dump(img_idx_dict, output_file)
     print('Complete!')
 
-def get_imp_matrix(output_directory):
+def get_imp_matrix(output_directory, indicator_matrix = False):
     "get image tag importance matrix from presaved weights files"
     tag_idx_dict_path = f'{output_directory}/{tag_idx_filename}'
     obj_imp_file_path = f'{output_directory}/{obj_imp_filename}'
@@ -105,11 +106,20 @@ def get_imp_matrix(output_directory):
             for t, val in checklist[i][img_id].items():
                 #get tag index
                 t_idx = tag_idx_dict[t]
-                #replace value in matrix
-                imp_matrix[matrix_idx, t_idx] = val
+                #indicator matrix for word movers
+                if indicator_matrix:
+                    #replace value in matrix
+                    imp_matrix[matrix_idx, t_idx] = 1
+                else:
+                    #replace value in matrix
+                    imp_matrix[matrix_idx, t_idx] = val
 
-    #save as sparse matrix
-    print(f'Saving to {imp_matrix_filename} ...')
+    #save as sparse matrix                
     sparse_matrix = csc_matrix(imp_matrix)
-    save_npz(f'{output_directory}/{imp_matrix_filename}', sparse_matrix)
+    if indicator_matrix:
+        print(f'Saving to {ind_matrix_filename} ...')
+        save_npz(f'{output_directory}/{ind_matrix_filename}', sparse_matrix)
+    else:
+        print(f'Saving to {imp_matrix_filename} ...')
+        save_npz(f'{output_directory}/{imp_matrix_filename}', sparse_matrix)
     print('Complete!')
