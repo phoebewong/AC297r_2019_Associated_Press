@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 from src import constants
-import pickle
-import dill
 
 # KNN model
 class KNN():
@@ -66,7 +64,3 @@ if __name__ == '__main__':
     # knn model
     model = KNN(3, article_images)
     model.fit(train)
-
-    # save model to pickle file
-    filename = 'knn_model.pkl'
-    dill.dump(model, open(filename, 'wb'))
