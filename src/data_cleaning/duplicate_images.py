@@ -8,7 +8,11 @@ if __name__ == '__main__':
 
     start_time = time.time()
     path = constants.THUMBNAIL_DIR
-    imgs = [os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    all_files = [os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    imgs = []
+    for f in all_files:
+        if ".jpg" in f:
+            imgs.append(f)
     print('Number of files', len(imgs), time.time() - start_time)
 
     def get_id(path):

@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <div class="font-weight-light text-center row mt-4 mb-0">
+  <!-- <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
         Similar Article Headlines
@@ -93,7 +93,7 @@
         No matches.
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
@@ -107,10 +107,10 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <button type="button" class="btn btn-success">Accept</button>
-              <button type="button" class="btn btn-danger">Reject</button>
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
-              <p> {{ image.caption }} </p>
+              <p class="mb-1"> {{ image.caption }} </p>
+              <button type="button" class="btn btn-outline-success btn-sm">Accept</button>
+              <button type="button" class="btn btn-outline-danger btn-sm">Reject</button>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@
       <div v-if="images.length" class="container">
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in true_images" class="col-lg-3 col-md-4 col-6">
-            <div class="d-block mb-4 h-100">
+            <div class="d-block mb-4 h-100 text-center">
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
               <p> {{ image.caption }} </p>
             </a>
