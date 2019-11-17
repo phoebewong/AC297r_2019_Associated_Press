@@ -97,8 +97,6 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
 
     if return_textrank_bags:
         return textrank_words, textrank_score
-    # print(textrank_words)
-    # print(textrank_score)
     # Get named entities
     if use_spacy_entities:
         named_entities = get_textacy_name_entities(doc, article_id = None) # article id to be assigned to create the data
@@ -113,6 +111,15 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     textrank_entities, textrank_score, entities_output, entities_scores, ne_count = get_textrank_entities_only(np.array(textrank_words), textrank_score, entities_list, return_count=True)
     # 0 or 1 if the entities is included in textrank
     entities_scores = np.array(list(map(int, entities_scores)))
+    # Average out textrank score for entities that are in >=1 textrank bags of words
+    temp_df = pd.DataFrame([textrank_score, list(entities_output)]).T.rename(columns = \
+              {0:"TextRank_score", 1:"named_entities"})
+    temp_df.TextRank_score = temp_df.TextRank_score.astype(float)
+    # Get average textrank score per entity and sort the df in descending order
+    temp_df2 = temp_df.groupby('named_entities').mean().sort_values(by = 'TextRank_score', ascending=False).reset_index()
+    textrank_score = temp_df2['TextRank_score'].values
+    entities_output = temp_df2['named_entities'].values
     # Return named entities extracted that existed in textrank keywords
     # entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
+
     return textrank_entities, np.round(textrank_score, 5), entities_output
