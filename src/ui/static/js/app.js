@@ -7,8 +7,10 @@ var vue = new Vue({
       error: null,
       title: "",
       body: "",
+      chosen_model: "",
       tags: [],
-      images: []
+      images: [],
+      true_images: [],
     }
   },
   async created () {
@@ -18,7 +20,7 @@ var vue = new Vue({
     getMatches () {
       console.log("fetching matches");
       this.pending = true;
-      var data = { title: this.title, body: this.body };
+      var data = { title: this.title, body: this.body, model: this.chosen_model};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
           this.tags = response.body.data.tags;

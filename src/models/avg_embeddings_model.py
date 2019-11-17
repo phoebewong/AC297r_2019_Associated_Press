@@ -1,6 +1,6 @@
 def preprocessing(sentence):
     sentence = sentence.lower().strip()
-    bad_chars = '-.?;,!@#$%^&*()+/{}[]\\":\''
+    bad_chars = '-.?;,!@#$%^&*()+/{}[]\\":\'“’'
     for char in bad_chars:
         sentence = sentence.replace(char, ' ').strip()
     all_words = sentence.split()

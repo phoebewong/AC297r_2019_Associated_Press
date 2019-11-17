@@ -20,23 +20,24 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-class ArticleInput(BaseModel):
+class InputParams(BaseModel):
     title: str = None
     body: str
+    model: str
 
 
 @app.post("/match")
-async def new_matches(article_input: ArticleInput):
-    logger.debug("trying to find good images for article: %s", article_input.title)
+async def new_matches(input_params: InputParams):
+    logger.debug("trying to find good images for article: %s", input_params.title)
+    logger.debug("model used: %s", input_params.model)
 
     # get tags
-    title, body = article_input.title, article_input.body
+    title, body, model = input_params.title, input_params.body, input_params.model
 
     id = api_helper.article_id_extractor(title, body)
     if id == None:
         id, title, body = api_helper.random_article_extractor()
 
-    print(id, title, body)
     id, tags, tag_types = api_helper.tagging_api(title, body)
 
     true_images = api_helper.article_images(id)
@@ -46,17 +47,20 @@ async def new_matches(article_input: ArticleInput):
     # articles = api_helper.matching_articles(article_ids)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
+
+    # t2t model stuff
     t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
     predicted_imgs = t2i_object.predict(4)
     pp_preds = predicted_imgs
     pred_captions = api_helper.image_captions(pp_preds)
+    articles = {None}
 
     return {
         "status": "ok",
         "data": {
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
             "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(pp_preds)],
-            "articles": [{None}],
+            "articles": [articles],
             "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
     }
