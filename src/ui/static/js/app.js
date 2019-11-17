@@ -24,6 +24,7 @@ var vue = new Vue({
           this.tags = response.body.data.tags;
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
+          this.true_images = response.body.data.true_images;
         }
         this.pending = false;
       }, response => {
@@ -32,8 +33,8 @@ var vue = new Vue({
         this.pending = false;
       });
     },
-    makeImgSource(img_id){
-      return 'static/img/thumbnail/' + img_id + '.jpg'
+    makeImgSource(img_id, cat='preview'){
+      return 'static/img/' + cat + '/' + img_id + '.jpg'
     }
   },
   computed: {},
