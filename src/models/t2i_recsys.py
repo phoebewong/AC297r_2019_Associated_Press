@@ -38,7 +38,6 @@ class T2I:
         img_summary = pd.read_csv(f'{clean_directory}/{constants.Media_Prefix}summary.csv')
         subset = img_summary[img_summary.article_idx == self.idx]
         self.img_idx_omit = subset.id.values
-        print(f'{len(self.img_idx_omit)} associated images found \n')
 
     def format_tags(self):
         "format ranked tag strings"
@@ -111,7 +110,7 @@ def cosine_distance(ref_matrix, comp_vec):
     '''
     #reshape vector
     comp_vec_new = np.repeat(comp_vec.reshape(1,-1), ref_matrix.shape[0], axis = 0)
-    #turn to sparse matrix 
+    #turn to sparse matrix
     comp_vec_new = csr_matrix(comp_vec_new)
     #compute cosine distance
     img_scores = cosine_similarity(comp_vec_new, ref_matrix)

@@ -50,6 +50,7 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     entities_tr_score = []
     entities_scores = np.zeros(len(entities_list))
     entities_list = np.unique(entities_list)
+
     entities_output = []
     for rank_ix, textrank in enumerate(textrank_words): # for each textrank ngram token
         temp_score = 0
