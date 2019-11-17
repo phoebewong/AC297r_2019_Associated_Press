@@ -22,6 +22,7 @@ class ImageItem():
         # creating a unique file so we don't lose data
         self.file_name = '{}/{}.json'.format(constants.IMAGE_DIR, self.itemid)
         self.thumbnail = '{}/{}.jpg'.format(constants.THUMBNAIL_DIR, self.itemid)
+        self.preview = '{}/{}.jpg'.format(constants.PREVIEW_DIR, self.itemid)
 
     def save_full_json_response(self, apikey, associationid=None):
         '''
@@ -61,7 +62,7 @@ class ImageItem():
         '''
         return self.raw_json['uri']
 
-    def get_images(self, apikey):
+    def get_image_thumbnails(self, apikey):
         '''
         Saves image thumbnails in files
         '''
@@ -71,12 +72,12 @@ class ImageItem():
 
         # dealing with no renditions
         if 'renditions' not in self.full_json_response['data']['item'].keys():
-            print('\n image {}: no renditions \n'.format(self.itemid))
+            print('image {}: no renditions'.format(self.itemid))
             return
 
         # dealing with no thumbnail
         if 'thumbnail' not in self.full_json_response['data']['item']['renditions'].keys():
-            print('\n image {}: no thumbnail \n'.format(self.itemid))
+            print('image {}: no thumbnail'.format(self.itemid))
             return
 
         # getting the image file
@@ -84,3 +85,33 @@ class ImageItem():
         full_thumbnail_url = '{}&apikey={}'.format(self.thumbnail_href, apikey)
         urllib.request.urlretrieve(full_thumbnail_url, self.thumbnail)
         return
+
+    def get_image_previews(self, apikey):
+        '''
+        Saves image previews in files
+        '''
+        # if a file exists, we don't call the API
+        if Path(self.preview).is_file():
+            return
+
+        # dealing with no renditions
+        if 'renditions' not in self.full_json_response['data']['item'].keys():
+            print('image {}: no renditions'.format(self.itemid))
+            return
+
+        # dealing with no preview
+        if 'preview' not in self.full_json_response['data']['item']['renditions'].keys():
+            print('image {}: no preview'.format(self.itemid))
+            return
+
+        # getting the image file
+        self.preview_href = self.full_json_response['data']['item']['renditions']['preview']['href']
+        full_preview_url = '{}&apikey={}'.format(self.preview_href, apikey)
+        urllib.request.urlretrieve(full_preview_url, self.preview)
+        return
+
+    def check_thumbnail_previews(self):
+        ppath = Path(self.preview).is_file()
+        tpath = Path(self.thumbnail).is_file()
+        if (ppath and not tpath) or (not ppath and tpath):
+            print(self.itemid)

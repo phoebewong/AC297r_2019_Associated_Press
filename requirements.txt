@@ -26,3 +26,7 @@ nltk
 scikit-learn
 spacy
 image
+textacy
+matplotlib
+gluoncv
+mxnet
