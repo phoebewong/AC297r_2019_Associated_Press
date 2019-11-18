@@ -2,6 +2,7 @@ import os
 import logging
 from src import api_helper
 from src.models import t2i_recsys
+from src.models.avg_embeddings_model import AvgEmbeddings
 import numpy as np
 from src.nlp_util.textacy_util import *
 
@@ -49,17 +50,22 @@ async def new_matches(input_params: InputParams):
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
 
     # t2t model stuff
-    t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-    predicted_imgs = t2i_object.predict(4)
-    pp_preds = predicted_imgs
-    pred_captions = api_helper.image_captions(pp_preds)
-    articles = {None}
+    if model == 't2t':
+        t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
+        predicted_imgs = t2i_object.predict(4)
+        pred_captions = api_helper.image_captions(predicted_imgs)
+        articles = {None}
+
+    elif model == 'emb':
+        predicted_imgs = embed_model.predict_images(title, k=8)
+        pred_captions = api_helper.image_captions(predicted_imgs)
+        articles = {None}
 
     return {
         "status": "ok",
         "data": {
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
-            "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(pp_preds)],
+            "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(predicted_imgs)],
             "articles": [articles],
             "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
@@ -73,6 +79,8 @@ async def home(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
+    global embed_model
+    embed_model = AvgEmbeddings(300)
     logger.info("started")
 
 
