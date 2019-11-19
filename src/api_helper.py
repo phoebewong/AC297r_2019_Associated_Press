@@ -98,9 +98,10 @@ def matching_articles(ids):
     headlines = []
     for id in ids:
         try:
-            headlines.append('id: {}. headline: {}'.format(id, subset[subset['id'] == id]['headline'].values[0]))
+            headlines.append({'id': id, 'headline': subset[subset['id'] == id]['headline'].values[0]})
         except:
-            headlines.append('id: {}. headline: none'.format(id))
+            headlines.append({'id': id, 'headline': 'no headline found: {}'.format(id)})
+            
     return headlines
 
 def postprocess(x):

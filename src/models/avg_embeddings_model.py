@@ -131,7 +131,7 @@ class AvgEmbeddings:
         filtered_sentence = [w for w in all_words if not w in stop_words]
         return ' '.join(filtered_sentence)
 
-    def predict_articles(self, headline, ind=None, k=8):
+    def predict_articles(self, headline, true_id=None, k=8):
         """
         Predicts the closest matching article headlines given an article headline
         Returns a list of article ids
@@ -142,13 +142,15 @@ class AvgEmbeddings:
 
         # finding nearest neighbors articles
         scores_articles = np.dot(self.article_embeddings_load, emb).flatten()
-        if ind is not None:
+        if true_id is not None:
+            ind = self.article_summary[self.article_summary['headline'] == headline].index.values[0]
             scores_articles[ind] = 0
+
         top_k_articles = np.argsort(-scores_articles)[:k]
         top_k_art_ids = [self.article_summary.iloc[ind].id for ind in top_k_articles]
         return top_k_art_ids
 
-    def predict_images(self, headline, ind=None, k=8):
+    def predict_images(self, headline, true_id=None, k=8):
         """
         Predicts the closest matching image caption given an article headline
         Returns a list of image ids

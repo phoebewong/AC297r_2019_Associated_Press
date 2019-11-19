@@ -3,6 +3,7 @@ import logging
 from src import api_helper
 from src.models import t2i_recsys
 from src.models.avg_embeddings_model import AvgEmbeddings
+from src.models.knn_model import KNN
 import numpy as np
 from src.nlp_util.textacy_util import *
 
@@ -36,16 +37,15 @@ async def new_matches(input_params: InputParams):
     title, body, model = input_params.title, input_params.body, input_params.model
 
     id = api_helper.article_id_extractor(title, body)
+
     if id == None:
         id, title, body = api_helper.random_article_extractor()
+        print(title)
 
     id, tags, tag_types = api_helper.tagging_api(title, body)
 
     true_images = api_helper.article_images(id)
     true_captions = api_helper.image_captions(true_images)
-
-    # get matching articles
-    # articles = api_helper.matching_articles(article_ids)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
 
@@ -54,19 +54,25 @@ async def new_matches(input_params: InputParams):
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
         predicted_imgs = t2i_object.predict(4)
         pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = {None}
+        articles = [{None}]
 
     elif model == 'emb':
         predicted_imgs = embed_model.predict_images(title, k=8)
         pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = {None}
+        article_ids = embed_model.predict_articles(title, k=3, true_id=id)
+        articles = api_helper.matching_articles(article_ids)
+
+    elif model == 'knn':
+        article_ids, predicted_imgs, scores = knn_model.predict(tags, true_id=id)
+        pred_captions = api_helper.image_captions(predicted_imgs)
+        articles = api_helper.matching_articles(article_ids)
 
     return {
         "status": "ok",
         "data": {
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
             "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(predicted_imgs)],
-            "articles": [articles],
+            "articles": articles,
             "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
     }
@@ -79,8 +85,9 @@ async def home(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
-    global embed_model
-    embed_model = AvgEmbeddings(300)
+    global embed_model, knn_model
+    embed_model = AvgEmbeddings(50)
+    knn_model = KNN(3)
     logger.info("started")
 
 
