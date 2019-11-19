@@ -1,20 +1,18 @@
 import pandas as pd
 import numpy as np
 from src import constants
-import pickle
-import dill
 
 # KNN model
 class KNN():
     # @param k: number of neighbors to return
-    def __init__(self, k, article_to_image):
+    def __init__(self, k):
         self.k = k
-        self.article_to_image = article_to_image
+        self.article_ti_image = None
 
-    # @param train: training set of articles
-    # @article_to_image: map of images associated with each article
-    def fit(self, train):
-        self.train = train
+    def get_article_to_image():
+        df = pd.read_csv(constants.CLEAN_DIR / 'image_summary.csv')
+        g = df.groupby("article_idx")['id']
+        self.article_to_image = g.apply(list).to_dict()
 
     # returns number of normalized exact tag overlap
     def baseline_score(self,t0,t1):
@@ -24,6 +22,9 @@ class KNN():
     # @param test: article to predict in form (id, tags)
     # TODO: implement sep functions for text train and image train
     def predict(self, test_tags):
+        if self.article_to_image == None:
+            self.get_article_to_image()
+
         ranks = {}
         train = self.train.copy()
         train_ids, train_tags_all = train.index, train.values
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     article_feat_csvs = ['article_person.csv','article_org.csv','article_place.csv','article_subject.csv']
     train = pd.Series([])
     for csv_file in os.listdir(constants.CLEAN_DIR):
-        if csv_file in article_feat_csvs: 
+        if csv_file in article_feat_csvs:
             df = pd.read_csv(constants.CLEAN_DIR / csv_file)
             feat = csv_file[8:-4]
             g = df.groupby("id")[tag_ref[feat]]
@@ -85,9 +86,4 @@ if __name__ == '__main__':
     article_images = g.apply(list).to_dict()
 
     # knn model
-    model = KNN(3, article_images)
-    model.fit(train)
-
-    # save model to pickle file
-    filename = 'knn_model.pkl'
-    dill.dump(model, open(filename, 'wb'))
+    model = KNN(3)
