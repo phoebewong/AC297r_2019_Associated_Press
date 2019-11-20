@@ -4,6 +4,7 @@ var vue = new Vue({
   data () {
     return {
       pending: false,
+      show_articles: false,
       error: null,
       title: "",
       body: "",
@@ -27,6 +28,9 @@ var vue = new Vue({
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
           this.true_images = response.body.data.true_images;
+          if (this.chosen_model === "emb" || this.chosen_model === "knn"){
+            this.show_articles = true;
+          }
         }
         this.pending = false;
       }, response => {

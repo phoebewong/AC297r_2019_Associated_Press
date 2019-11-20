@@ -49,6 +49,7 @@
             <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:20%; margin-left:40%" id="model">
               <option disabled value="">Select a model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
+              <option class="form-control text-center" value="emb">Embedding Model</option>
               <option class="form-control text-center" value="knn">kNN Model</option>
               <!-- <option class="form-control text-center" value="wem">Word Embedding Model</option> -->
             </select>
@@ -97,7 +98,7 @@
     </div>
   </div>
 
-  <!-- <div class="font-weight-light text-center row mt-4 mb-0">
+  <div v-if="show_articles" class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
         Similar Article Headlines
@@ -105,14 +106,14 @@
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <div v-if="tags.length">
+      <div v-if="articles.length">
         <div v-for="article in articles">{{ article.headline }}</div>
       </div>
       <div v-else>
         No matches.
       </div>
     </div>
-  </div> -->
+  </div>
 
   <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
