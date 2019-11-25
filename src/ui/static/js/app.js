@@ -4,11 +4,14 @@ var vue = new Vue({
   data () {
     return {
       pending: false,
+      show_articles: false,
       error: null,
       title: "",
       body: "",
+      chosen_model: "",
       tags: [],
-      images: []
+      images: [],
+      true_images: [],
     }
   },
   async created () {
@@ -18,12 +21,16 @@ var vue = new Vue({
     getMatches () {
       console.log("fetching matches");
       this.pending = true;
-      var data = { title: this.title, body: this.body };
+      var data = { title: this.title, body: this.body, model: this.chosen_model};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
           this.tags = response.body.data.tags;
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
+          this.true_images = response.body.data.true_images;
+          if (this.chosen_model === "emb" || this.chosen_model === "knn"){
+            this.show_articles = true;
+          }
         }
         this.pending = false;
       }, response => {
@@ -32,8 +39,8 @@ var vue = new Vue({
         this.pending = false;
       });
     },
-    makeImgSource(img_id){
-      return 'static/img/thumbnail/' + img_id + '.jpg'
+    makeImgSource(img_id, cat='preview'){
+      return 'static/img/' + cat + '/' + img_id + '.jpg'
     }
   },
   computed: {},

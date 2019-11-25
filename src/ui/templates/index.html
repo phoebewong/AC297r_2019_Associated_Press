@@ -42,10 +42,17 @@
   <div class="row">
     <div class="col">
       <form class="form">
-        <div class="row">
+        <div class="row" style="width: 90%; margin-left: 5%">
           <div class="col-sm-12 mb-2">
-            <input v-model="title" type="text" class="form-control text-center mb-1" id="title" placeholder="Article title">
-            <input v-model="body" type="text" class="form-control text-center" id="body" placeholder="Article body">
+            <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article title">
+            <textarea v-model="body" class="form-control text-center mb-1" id="body" placeholder="Article body" rows=4></textarea>
+            <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:20%; margin-left:40%" id="model">
+              <option disabled value="">Select a model</option>
+              <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
+              <option class="form-control text-center" value="emb">Embedding Model</option>
+              <option class="form-control text-center" value="knn">kNN Model</option>
+              <!-- <option class="form-control text-center" value="wem">Word Embedding Model</option> -->
+            </select>
           </div>
           <div class="col-sm-12 text-center">
             <button type="submit"
@@ -64,13 +71,26 @@
   <div class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
-        Tags: Importance Score
+        Tags
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <div v-if="tags.length">
-        <div v-for="tag in tags">{{ tag.name }}: {{ tag.score }}</div>
+      <div v-if="tags.length" style="width:80%; margin-left:10%">
+        <div v-for="tag in tags" style="display:inline-block; padding:0.2em">
+          <button v-if="tag.type === 'place'" type="button" class="btn btn-success btn-sm">
+            {{ tag.name }}: {{ tag.type }}: {{ tag.score }}
+          </button>
+          <button v-else-if="tag.type === 'subject'" type="button" class="btn btn-warning btn-sm">
+            {{ tag.name }}: {{ tag.type }}: {{ tag.score }}
+          </button>
+          <button v-else-if="tag.type === 'org'" type="button" class="btn btn-secondary btn-sm">
+            {{ tag.name }}: {{ tag.type }}: {{ tag.score }}
+          </button>
+          <button v-else type="button" class="btn btn-info btn-sm">
+            {{ tag.name }}: {{ tag.type }}: {{ tag.score }}
+          </button>
+        </div>
       </div>
       <div v-else>
         No tags.
@@ -78,7 +98,7 @@
     </div>
   </div>
 
-  <div class="font-weight-light text-center row mt-4 mb-0">
+  <div v-if="show_articles" class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
         Similar Article Headlines
@@ -86,7 +106,7 @@
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
       </h3>
-      <div v-if="tags.length">
+      <div v-if="articles.length">
         <div v-for="article in articles">{{ article.headline }}</div>
       </div>
       <div v-else>
@@ -106,14 +126,41 @@
       <div v-if="images.length" class="container">
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
-            <a href="#" class="d-block mb-4 h-100">
+            <div class="d-block mb-4 h-100 text-center">
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
-            </a>
+              <p class="mb-1"> {{ image.caption }} </p>
+              <button type="button" class="btn btn-outline-success btn-sm">Accept</button>
+              <button type="button" class="btn btn-outline-danger btn-sm">Reject</button>
+            </div>
           </div>
         </div>
       </div>
       <div v-else>
-        No thumbnails.
+        No images.
+      </div>
+    </div>
+  </div>
+
+  <div class="font-weight-light text-center row mt-4 mb-0">
+    <div class="col">
+      <h3 class="font-weight-light">
+        True Images
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <div v-if="true_images.length" class="container">
+        <div class="row text-center text-lg-left mb-3">
+          <div v-for="image in true_images" class="col-lg-3 col-md-4 col-6">
+            <div class="d-block mb-4 h-100 text-center">
+              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+              <p class="mb-1"> {{ image.caption }} </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        No true images.
       </div>
     </div>
   </div>

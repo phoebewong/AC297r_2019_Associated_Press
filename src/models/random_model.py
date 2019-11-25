@@ -4,7 +4,6 @@ from sklearn.compose import TransformedTargetRegressor
 import pandas as pd
 import numpy as np
 from src import constants
-import pickle
 
 if __name__ == '__main__':
     csv_file = constants.OUTPUT_CSV_DIR / 'image_person.csv'
@@ -16,5 +15,3 @@ if __name__ == '__main__':
     data['Y'] = X
 
     model = LinearRegression().fit(data[['X']], data[['Y']])
-    filename = 'random_model.pkl'
-    pickle.dump(model, open(filename, 'wb'))
