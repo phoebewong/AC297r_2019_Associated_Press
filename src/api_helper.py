@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import constants
+from src import constants
 import json
 import requests
 import configparser
@@ -93,39 +93,45 @@ def tagging_api_old(title, body):
     return id, art_alltags['tag'].values, art_alltags['type'].values
 
 def tagging_api(body):
+    """
+    Tags articles using API call
+    """
     #retrieve password
     config = configparser.ConfigParser()
     config.read('password.ini')
     apikey =  (config['key']['apikey'])
 
-    #available taxonomy dataset for call
+    #format request to tagging api 
     datasets = ['subject', 'geography', 'organization', 'person']
-
-    for data in datasets:
-        request_url = f'http://cv.ap.org/annotations?apikey={apikey}'
-        data = {"meta": {
-                    "features": [
-                        {"name": "ap",
-                        "authorities": datasets}],
-                        "accept": "application/ld+json"},
-                        "document": body,
-                        "document_contenttype": "text/plain"}
-        response = requests.post(url = request_url, json = data)
-        if response.status_code == 200:
-            json_data = response.json()
-            if not json_data['annotation']:
-                return []
-            json_data = json.loads(json_data['annotation'])
-            tags = []
-            for j in json_data:
-                try:
-                    if j['@type'][0] == 'http://www.w3.org/2004/02/skos/core#Concept':
-                        tags.append(j['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'])
-                except:
-                    pass
-            return tags
-        else:
-            return response.status_code
+    request_url = f'http://cv.ap.org/annotations?apikey={apikey}'
+    data = {"meta": {
+                "features": [
+                    {"name": "ap",
+                    "authorities": datasets}],
+                    "accept": "application/ld+json"},
+                    "document": body,
+                    "document_contenttype": "text/plain"}
+    response = requests.post(url = request_url, json = data)
+    if response.status_code == 200:
+        json_data = response.json()
+        #some tags seem to be blank, ignore if no annotation field
+        if not json_data['annotation']:
+            return []
+        json_data = json.loads(json_data['annotation'])
+        tags = []
+        #current method extracts annotation 
+        #if there is a type field labeled http://www.w3.org/2004/02/skos/core#Concept
+        #seems to be a relevant tag 
+        #otherwise seems to be a category of tag e.g. Subject 
+        for j in json_data:
+            try:
+                if j['@type'][0] == 'http://www.w3.org/2004/02/skos/core#Concept':
+                    tags.append(j['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'])
+            except:
+                pass
+        return tags
+    else:
+        return response.status_code
 
 def matching_articles(ids):
     """
