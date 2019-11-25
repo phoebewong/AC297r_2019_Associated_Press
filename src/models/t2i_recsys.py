@@ -66,9 +66,13 @@ class T2I:
         "recommend images based on given method"
         #format tags
         self.format_tags()
+        
         if self.img_idx_omit is None:
             #get associated images
             self.get_associated_images()
+
+        if remove_original == False:
+            self.img_idx_omit = []
 
         #get article ranked importance vector
         art_imp_vec = self.prep_article_imp_vec()
