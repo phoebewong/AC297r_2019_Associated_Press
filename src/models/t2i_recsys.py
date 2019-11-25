@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from src import constants
 from scipy.sparse import load_npz, csr_matrix
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import MinMaxScaler
 
 #directory path
 data_directory = constants.DATA_DIR
@@ -77,9 +77,9 @@ class T2I:
         if method == 'dot_product':
             img_scores = dot_product(self.img_imp_matrix, art_imp_vec)
 
-        elif method == 'cosine_distance':
-            #compute dot_product
-            img_scores = cosine_distance(self.img_imp_matrix_sparse, art_imp_vec)
+        # elif method == 'cosine_distance':
+        #     #compute dot_product
+        #     img_scores = cosine_distance(self.img_imp_matrix_sparse, art_imp_vec)
 
         #sort for desired number of output
         output_idx = (-img_scores).argsort()
@@ -100,19 +100,22 @@ def dot_product(ref_matrix, comp_vec):
     Compute dot product distances between input article
     tag vector and image importance matrix.
     '''
+    #normalize matrix and vector
+    ref_matrix_normalized = MinMaxScaler().fit_transform(ref_matrix)
+    comp_vec_normalized = MinMaxScaler().fit_transform(comp_vec)
     #compute dot_product
-    img_scores = np.asarray(np.dot(ref_matrix, comp_vec.T)).flatten()
+    img_scores = np.asarray(np.dot(ref_matrix_normalized, comp_vec_normalized.T)).flatten()
     return img_scores
 
-def cosine_distance(ref_matrix, comp_vec):
-    '''
-    compute cosine distances between input article
-    tag vector and image importance matrix.
-    '''
-    #reshape vector
-    comp_vec_new = np.repeat(comp_vec.reshape(1,-1), ref_matrix.shape[0], axis = 0)
-    #turn to sparse matrix 
-    comp_vec_new = csr_matrix(comp_vec_new)
-    #compute cosine distance
-    img_scores = cosine_similarity(comp_vec_new, ref_matrix)
-    return img_scores[0]
+# def cosine_distance(ref_matrix, comp_vec):
+#     '''
+#     compute cosine distances between input article
+#     tag vector and image importance matrix.
+#     '''
+#     #reshape vector
+#     comp_vec_new = np.repeat(comp_vec.reshape(1,-1), ref_matrix.shape[0], axis = 0)
+#     #turn to sparse matrix
+#     comp_vec_new = csr_matrix(comp_vec_new)
+#     #compute cosine distance
+#     img_scores = cosine_similarity(comp_vec_new, ref_matrix)
+#     return img_scores[0]
