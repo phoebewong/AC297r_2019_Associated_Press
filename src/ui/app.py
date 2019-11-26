@@ -3,6 +3,7 @@ import logging
 from src import api_helper
 from src.models import t2i_recsys
 from src.models.avg_embeddings_model import AvgEmbeddings
+from src.models.soft_cosine_model import SoftCosine
 from src.models.knn_model import KNN
 import numpy as np
 from src.nlp_util.textacy_util import *
@@ -67,6 +68,12 @@ async def new_matches(input_params: InputParams):
         pred_captions = api_helper.image_captions(predicted_imgs)
         articles = api_helper.matching_articles(article_ids)
 
+    elif model == 'softcos':
+        predicted_imgs = soft_cosine_model.predict(title, art_id=id)
+        pred_captions = api_helper.image_captions(predicted_imgs)
+        articles = [{None}]
+
+
     return {
         "status": "ok",
         "data": {
@@ -85,8 +92,9 @@ async def home(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
-    global embed_model, knn_model
+    global embed_model, knn_model, soft_cosine_model
     embed_model = AvgEmbeddings(50)
+    soft_cosine_model = SoftCosine()
     knn_model = KNN(3)
     logger.info("started")
 
