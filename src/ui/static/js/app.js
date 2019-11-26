@@ -31,6 +31,9 @@ var vue = new Vue({
           if (this.chosen_model === "emb" || this.chosen_model === "knn"){
             this.show_articles = true;
           }
+          else {
+            this.show_articles = false;
+          }
         }
         this.pending = false;
       }, response => {

@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 from src import constants
+import json
+import requests
+import configparser
 
 def random_article_extractor():
     """
@@ -55,7 +58,7 @@ def image_captions(ids):
         captions.append(caption)
     return captions
 
-def tagging_api(title, body):
+def tagging_api_existing(title, body):
     """
     Tags articles (at the moment it gets tags from the dataset)
     """
@@ -89,6 +92,53 @@ def tagging_api(title, body):
 
     return id, art_alltags['tag'].values, art_alltags['type'].values
 
+def tagging_api_new(title, body):
+    """
+    Tags articles using API call
+    """
+    # retrieve password
+    config = configparser.ConfigParser()
+    config.read(constants.SRC_DIR / 'password.ini')
+    apikey = config['key']['apikey']
+
+    #format request to tagging api
+    datasets = ['subject', 'geography', 'organization', 'person']
+    request_url = f'http://cv.ap.org/annotations?apikey={apikey}'
+    data = {"meta": {
+                "features": [
+                    {"name": "ap",
+                    "authorities": datasets}],
+                    "accept": "application/ld+json"},
+                    "document": body,
+                    "document_contenttype": "text/plain"}
+    response = requests.post(url = request_url, json = data)
+    if response.status_code == 200:
+        json_data = response.json()
+        # some tags seem to be blank, ignore if no annotation field
+        if not json_data['annotation']:
+            return []
+        json_data = json.loads(json_data['annotation'])
+        tags = []
+        types = []
+        # current method extracts annotation
+        # if there is a type field labeled http://www.w3.org/2004/02/skos/core#Concept
+        # seems to be a relevant tag
+        # otherwise seems to be a category of tag e.g. Subject
+        for j in json_data:
+            try:
+                if j['@type'][0] == 'http://www.w3.org/2004/02/skos/core#Concept':
+                    tags.append(j['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'])
+                    type = j['http://cv.ap.org/ns#authority'][0]['@value']
+                    type = type.split()[1].strip().lower() # gets Subject from e.g. AP Subject
+                    if type == 'geography':
+                        type = 'place'
+                    types.append(type)
+            except:
+                pass
+        return tags, types
+    else:
+        return response.status_code
+
 def matching_articles(ids):
     """
     Matching articles and getting headlines
@@ -102,7 +152,7 @@ def matching_articles(ids):
             headlines.append({'id': id, 'headline': subset[subset['id'] == id]['headline'].values[0]})
         except:
             headlines.append({'id': id, 'headline': 'no headline found: {}'.format(id)})
-            
+
     return headlines
 
 def postprocess(x):
@@ -115,18 +165,12 @@ def postprocess(x):
     return np.array(data.iloc[indices].id).reshape(-1,1)
 
 if __name__ == '__main__':
-    headline = "Gdansk mayor: No public space for divisive priest's statue"
-    full_text = "WARSAW, Poland (AP) — The new mayor of the Polish city of Gdansk says a statue of late Solidarity-era priest Henryk Jankowski, at the center of allegations he abused minors, should not stand in a public place.The statue recognizes Jankowski's staunch support for the Solidarity pro-democracy movement in the 1980s, born out of Gdansk shipyard workers' protest.But the abuse allegations led three men to overturn it one night last month. Shipyard workers put it back up.Mayor Aleksandra Dulkiewicz said late Monday both actions were illegal and hampered peaceful dialogue about the monument's future. She said the statue should stand on private property, without specifying. It could mean church land.On Thursday, Gdansk councilors are to debate whether to dismantle the statue."
-
-    headline = "Brexiteer Farage splattered in latest UK milkshake attack"
-    full_text = "LONDON (AP) — Pro-Brexit British politician Nigel Farage was hit with a milkshake while campaigning in the European Parliament election on Monday — the latest in a spate of attacks on politicians with the sticky beverages.Farage was left with milkshake dripping down his lapels during a walkabout in Newcastle, northeast England. Police said a 32-year-old man was arrested on suspicion of assault.Paul Crowther, who was detained in handcuffs at the scene, said he threw the banana-and-salted caramel Five Guys shake to protest Farage's 'bile and racism.' He said he had been looking forward to the milkshake, 'but I think it went on a better purpose.' Farage blamed the attack on those who wanted to remain in the EU. He tweeted that 'Sadly some remainers have become radicalised, to the extent that normal campaigning is becoming impossible.' Farage's Brexit Party is leading opinion polls in the contest for 73 U.K. seats in the 751-seat European Parliament.Milkshakes have become an unlikely political weapon in Britain. Other right-wing candidates including far-right activist Tommy Robinson have also been pelted with milkshakes during the election campaign.Last week a McDonald's in Edinburgh, Scotland said it had been told by police not to sell milkshakes during a Brexit Party rally.In response, Burger King tweeted: 'Dear people of Scotland. We're selling milkshakes all weekend. Have fun. Love BK.'"
-
-    bad_id = "c3c12c99cf644aafa0c830c9c047ca9b"
-
-    id, all_tags, tag_types = tagging_api(headline, full_text)
-    print(id)
-    print(all_tags)
-    images = article_images(id)
-    print(images)
-    captions = image_captions(images)
-    print(captions)
+    text =  "Georgia Tech’s schedule to this point has been light, with a season-opener against Tennessee the hardest test to this" \
+    " point. Miami (4-0, 2-0) is looking for its first 10-game win streak since 2003-04. If it is looking for inspiration, Georgia Tech can look to" \
+" 2015, when it stunned ninth-ranked Florida State on a last-second blocked field goal return for a 78-yard touchdown. FSU entered that" \
+" game with a 29-game win streak over ACC opponents. Miami has beaten its last six ACC foes. Georgia Tech ranks 31st in points" \
+" (36.5), 35th in yards per play (6.35) and unsurprisingly, second nationally in rushing yards per game (396.0). The Yellow Jackets" \
+" average 5.91 yards per carry (10th), which ranks behind Miami’s 6.40, which is sixth. Georgia Tech hasn’t finished behind Miami — or" \
+" anywhere outside the top 20 — in rushing yards per carry since at least 2008.Quarterback TaQuon Marshall, a converted running back" \
+" (current running back, really, in Paul Johnson‘s offense), has been a capable leader"
+    print(tagging_api_new("title", text))
