@@ -11,9 +11,9 @@ To run the tests, run `pytest test_project.py` from the project root.
 
 Below is the data cleaning / preprocessing stream now to get cleaned training, test, and validation dataset:
 
-- run `duplicate_images.py` in `src/data_cleaning/``
+- run `duplicate_images.py` in `src/data_cleaning/`
 - run `clean_data.py` in `src/data_cleaning/`
-- run `train_test_split.py` in `src/preprocessing/``
+- run `train_test_split.py` in `src/preprocessing/`
 
 ### Running the application
 
