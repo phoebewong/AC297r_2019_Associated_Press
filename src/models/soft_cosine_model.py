@@ -9,6 +9,12 @@ from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
+# Hide warnings
+import warnings
+warnings.filterwarnings("ignore", message="divide by zero encountered in true_divide")
+warnings.filterwarnings("ignore", message="invalid value encountered in multiply")
+
+
 class SoftCosine:
     "class function for tag-to-image recommendation"
     def __init__(self, num_best=10):
