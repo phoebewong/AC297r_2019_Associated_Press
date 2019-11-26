@@ -14,6 +14,7 @@ def random_article_extractor():
     id = subset['id'].values[ind]
     title = subset['headline'].values[ind]
     body = subset['full_text'].values[ind]
+
     return id, title, body
 
 def article_id_extractor(title, body):

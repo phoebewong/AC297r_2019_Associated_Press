@@ -69,7 +69,7 @@ async def new_matches(input_params: InputParams):
         articles = api_helper.matching_articles(article_ids)
 
     elif model == 'softcos':
-        predicted_imgs =soft_cosine_model.predict(title)
+        predicted_imgs = soft_cosine_model.predict(title, art_id=id)
         pred_captions = api_helper.image_captions(predicted_imgs)
         articles = [{None}]
 
@@ -92,7 +92,7 @@ async def home(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
-    global embed_model, knn_model
+    global embed_model, knn_model, soft_cosine_model
     embed_model = AvgEmbeddings(50)
     soft_cosine_model = SoftCosine()
     knn_model = KNN(3)

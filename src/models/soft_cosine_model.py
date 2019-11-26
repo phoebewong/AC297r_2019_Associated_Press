@@ -68,7 +68,7 @@ class SoftCosine:
             with open(f'{constants.EMBEDDING_DIR}/soft_cosine.pkl', "wb") as f:
                 pickle.dump((self.dictionary, self.bow_corpus, self.similarity_matrix, self.docsim_index), f)
 
-    def if_valid(csv_entry):
+    def if_valid(self, csv_entry):
         "check whether an entry is nan or empty string"
         try:
             np.isnan(csv_entry)
@@ -99,18 +99,18 @@ class SoftCosine:
         return at
 
     # def vec(self, w):
-    def get_article_id(self, title):
-        """
-        Get the ID of the input article ID
-        Can be removed once tagging API integration is done.
-        """
-        try:
-            art_id = self.article_summary['id'][self.article_summary['title'] == title]
-            return art_id
-        except:
-            print("Article not found in the data, therefore, cannot find its article ID")
+    # def get_article_id(self, title):
+    #     """
+    #     Get the ID of the input article ID
+    #     Can be removed once tagging API integration is done.
+    #     """
+    #     try:
+    #         art_id = self.article_summary[self.article_summary['title'] == title].id
+    #         return art_id
+    #     except:
+    #         print("Article not found in the data, therefore, cannot find its article ID")
 
-    def predict(self, title, num_best = 10, tag_types = ['org', 'place', 'subject', 'person']):
+    def predict(self, title, art_id = None, num_best = 10, tag_types = ['org', 'place', 'subject', 'person']):
         """
         Predicts the closest 10 matching image tag vectors given an article tag vector
         Returns a list of image ids
@@ -122,7 +122,7 @@ class SoftCosine:
         except FileNotFoundError:
             print(f'no file found at {constants.DATA_DIR}/scene_tag_importance_all.json')
         # Get article ID
-        art_id = self.get_article_id(title)
+        # art_id = self.get_article_id(title)
         # Get article tags and lowercase them
         art_tags_lower = list(map(lambda x: x.lower(), self.get_tags(art_id, 'article_', tag_types)))
         # Compare target article tags with other image tags
