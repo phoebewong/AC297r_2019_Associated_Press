@@ -18,6 +18,7 @@ TRAIN_TEST_DIR = PROJECT_ROOT / 'data' / 'train_test_data'
 TRAIN_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'train'
 TEST_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'test'
 VAL_DIR = PROJECT_ROOT / 'data' / 'train_test_data'/'val'
+LOGGING_DIR = PROJECT_ROOT / 'data' / 'logged_data'
 STANFORD_PARSER = PROJECT_ROOT / 'stanford-parser-full-2018-10-17'
 PREPROCESSING_DIR = PROJECT_ROOT / 'src' / 'preprocessing'
 

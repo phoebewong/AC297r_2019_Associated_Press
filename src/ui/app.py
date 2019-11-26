@@ -23,9 +23,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 class InputParams(BaseModel):
-    title: str = None
+    title: str
     body: str
     model: str
+    images: list = []
+    id: str = None
 
 
 @app.post("/match")
@@ -40,6 +42,7 @@ async def new_matches(input_params: InputParams):
 
     if id == None:
         id, title, body = api_helper.random_article_extractor()
+        print(id)
         print(title)
 
     id, tags, tag_types = api_helper.tagging_api(title, body)
@@ -70,13 +73,28 @@ async def new_matches(input_params: InputParams):
     return {
         "status": "ok",
         "data": {
+            "id": id,
+            "title": title,
+            "body": body,
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
-            "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(predicted_imgs)],
+            "images": [{"id": id, "caption": pred_captions[i],  "liked": False, "disliked": False} for i,id in enumerate(predicted_imgs)],
             "articles": articles,
             "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
     }
 
+@app.post("/log")
+async def log_data(input_params: InputParams):
+    print('logging data')
+    title, body, model = input_params.title, input_params.body, input_params.model
+    id, images = input_params.id, input_params.images
+
+    # log data
+    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images})
+
+    return {
+        "status": "ok"
+    }
 
 @app.get("/")
 async def home(request: Request):

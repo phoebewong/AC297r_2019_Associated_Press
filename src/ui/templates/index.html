@@ -129,8 +129,10 @@
             <div class="d-block mb-4 h-100 text-center">
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
               <p class="mb-1"> {{ image.caption }} </p>
-              <button type="button" class="btn btn-outline-success btn-sm">Accept</button>
-              <button type="button" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">Accept</button>
+              <button v-else type="button" v-on:click="likeClicked(image)" class="btn btn-success btn-sm">Accept</button>
+              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-else type="button" v-on:click="dislikeClicked(image)" class="btn btn-danger btn-sm">Reject</button>
             </div>
           </div>
         </div>
