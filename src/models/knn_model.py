@@ -67,6 +67,8 @@ class KNN():
         test_tags = [t.lower().replace('"',"") for t in test_tags]
         if true_id is not None:
             k = self.k + 1 # eliminating the true article
+        else:
+            k = self.k
 
         # go through ids
         for ind in range(len(train_ids)):

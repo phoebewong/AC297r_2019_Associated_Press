@@ -39,14 +39,22 @@ async def new_matches(input_params: InputParams):
 
     id = api_helper.article_id_extractor(title, body)
 
-    if id == None:
+    if len(title) == 0 and len(body) == 0:
         id, title, body = api_helper.random_article_extractor()
-        print(title)
+        print(f'Missing title and/or body. Using a random article instead')
+        print(f'Random article id:{id}, title: {title}')
+        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
 
-    id, tags, tag_types = api_helper.tagging_api(title, body)
-
-    true_images = api_helper.article_images(id)
-    true_captions = api_helper.image_captions(true_images)
+    if id == None:
+        print(f'New article not in dataset')
+        print(f'Title: {title}')
+        tags, tag_types = api_helper.tagging_api_new(title, body)
+        print(tags, tag_types)
+        true_images = []
+        true_captions = []
+    else:
+        true_images = api_helper.article_images(id)
+        true_captions = api_helper.image_captions(true_images)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
 
@@ -55,7 +63,7 @@ async def new_matches(input_params: InputParams):
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
         predicted_imgs = t2i_object.predict(4)
         pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = [{None}]
+        articles = []
 
     elif model == 'emb':
         predicted_imgs = embed_model.predict_images(title, k=8)
@@ -71,8 +79,7 @@ async def new_matches(input_params: InputParams):
     elif model == 'softcos':
         predicted_imgs = soft_cosine_model.predict(title, art_id=id)
         pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = [{None}]
-
+        articles = []
 
     return {
         "status": "ok",

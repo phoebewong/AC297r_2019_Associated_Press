@@ -20,7 +20,6 @@ def random_article_extractor():
 
     return id, title, body
 
-
 def article_id_extractor(title, body):
     """
     If a title and body is in our dataset, we return its corresponding id
@@ -59,7 +58,7 @@ def image_captions(ids):
         captions.append(caption)
     return captions
 
-def tagging_api_old(title, body):
+def tagging_api_existing(title, body):
     """
     Tags articles (at the moment it gets tags from the dataset)
     """
@@ -93,14 +92,14 @@ def tagging_api_old(title, body):
 
     return id, art_alltags['tag'].values, art_alltags['type'].values
 
-def tagging_api(body):
+def tagging_api_new(title, body):
     """
     Tags articles using API call
     """
-    #retrieve password
+    # retrieve password
     config = configparser.ConfigParser()
-    config.read('password.ini')
-    apikey =  (config['key']['apikey'])
+    config.read(constants.SRC_DIR / 'password.ini')
+    apikey = config['key']['apikey']
 
     #format request to tagging api
     datasets = ['subject', 'geography', 'organization', 'person']
@@ -115,22 +114,24 @@ def tagging_api(body):
     response = requests.post(url = request_url, json = data)
     if response.status_code == 200:
         json_data = response.json()
-        #some tags seem to be blank, ignore if no annotation field
+        # some tags seem to be blank, ignore if no annotation field
         if not json_data['annotation']:
             return []
         json_data = json.loads(json_data['annotation'])
         tags = []
         types = []
-        #current method extracts annotation
-        #if there is a type field labeled http://www.w3.org/2004/02/skos/core#Concept
-        #seems to be a relevant tag
-        #otherwise seems to be a category of tag e.g. Subject
+        # current method extracts annotation
+        # if there is a type field labeled http://www.w3.org/2004/02/skos/core#Concept
+        # seems to be a relevant tag
+        # otherwise seems to be a category of tag e.g. Subject
         for j in json_data:
             try:
                 if j['@type'][0] == 'http://www.w3.org/2004/02/skos/core#Concept':
                     tags.append(j['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['@value'])
                     type = j['http://cv.ap.org/ns#authority'][0]['@value']
-                    type = type.split()[1].strip() # gets Subject from e.g. AP Subject
+                    type = type.split()[1].strip().lower() # gets Subject from e.g. AP Subject
+                    if type == 'geography':
+                        type = 'place'
                     types.append(type)
             except:
                 pass
@@ -144,14 +145,14 @@ def matching_articles(ids):
     """
     csv_file = constants.CLEAN_DIR / 'article_summary.csv'
     data = pd.read_csv(csv_file)
-    subset = data[['id', 'eadline']].dropna(axis=0)
+    subset = data[['id', 'headline']].dropna(axis=0)
     headlines = []
     for id in ids:
         try:
             headlines.append({'id': id, 'headline': subset[subset['id'] == id]['headline'].values[0]})
         except:
             headlines.append({'id': id, 'headline': 'no headline found: {}'.format(id)})
-            
+
     return headlines
 
 def postprocess(x):
@@ -172,4 +173,4 @@ if __name__ == '__main__':
 " average 5.91 yards per carry (10th), which ranks behind Miami’s 6.40, which is sixth. Georgia Tech hasn’t finished behind Miami — or" \
 " anywhere outside the top 20 — in rushing yards per carry since at least 2008.Quarterback TaQuon Marshall, a converted running back" \
 " (current running back, really, in Paul Johnson‘s offense), has been a capable leader"
-    print(tagging_api(text))
+    print(tagging_api_new("title", text))
