@@ -61,3 +61,4 @@ scn_imp_filename = 'scene_tag_importance_all.json'
 #npz file name
 imp_matrix_filename = 'imp_matrix.npz'
 ind_matrix_filename = 'ind_matrix.npz'
+normalized_imp_matrix_filename = 'normalized_imp_matrix.npz'
