@@ -38,23 +38,26 @@ async def new_matches(input_params: InputParams):
 
     # get tags
     title, body, model = input_params.title, input_params.body, input_params.model
+    true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
 
+    # no article text or body
     if len(title) == 0 and len(body) == 0:
         id, title, body = api_helper.random_article_extractor()
         print(f'Missing title and/or body. Using a random article instead')
-        print(f'Random article id:{id}, title: {title}')
-        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
 
+    # new article
     if id == None:
         print(f'New article not in dataset')
         print(f'Title: {title}')
         tags, tag_types = api_helper.tagging_api_new(title, body)
         print(tags, tag_types)
-        true_images = []
-        true_captions = []
+
+    # existing article
     else:
+        print(f'Article id:{id}, title: {title}')
+        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
         true_images = api_helper.article_images(id)
         true_captions = api_helper.image_captions(true_images)
 
