@@ -17,6 +17,7 @@ def random_article_extractor():
     id = subset['id'].values[ind]
     title = subset['headline'].values[ind]
     body = subset['full_text'].values[ind]
+
     return id, title, body
 
 
@@ -147,9 +148,10 @@ def matching_articles(ids):
     headlines = []
     for id in ids:
         try:
-            headlines.append('id: {}. headline: {}'.format(id, subset[subset['id'] == id]['headline'].values[0]))
+            headlines.append({'id': id, 'headline': subset[subset['id'] == id]['headline'].values[0]})
         except:
-            headlines.append('id: {}. headline: none'.format(id))
+            headlines.append({'id': id, 'headline': 'no headline found: {}'.format(id)})
+            
     return headlines
 
 def postprocess(x):

@@ -29,3 +29,4 @@ textacy
 matplotlib
 gluoncv
 mxnet
+gensim
