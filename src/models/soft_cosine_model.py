@@ -91,11 +91,12 @@ class SoftCosine:
         Can be removed once tagging API integration is done.
         """
         try:
-            self.art_id = self.article_summary['id'][self.article_summary['title'] == title]
+            art_id = self.article_summary['id'][self.article_summary['title'] == title]
+            return art_id
         except:
             print("Article not found in the data, therefore, cannot find its article ID")
 
-    def predict(self, tag_types = ['org', 'place', 'subject', 'person']):
+    def predict(self, title, tag_types = ['org', 'place', 'subject', 'person']):
         """
         Predicts the closest 10 matching image tag vectors given an article tag vector
         Returns a list of image ids
@@ -106,9 +107,10 @@ class SoftCosine:
             all_img_id = np.array(list(scene_tag_importance.keys()))
         except FileNotFoundError:
             print(f'no file found at {constants.DATA_DIR}/scene_tag_importance_all.json')
-
+        # Get article ID
+        art_id = self.get_article_id(title)
         # Get article tags and lowercase them
-        art_tags_lower = list(map(lambda x: x.lower(), self.get_tags(self.art_id, 'article_', tag_types)))
+        art_tags_lower = list(map(lambda x: x.lower(), self.get_tags(art_id, 'article_', tag_types)))
         # Compare target article tags with other image tags
         # calculate top 10 similar of tags to pre-trained word2vec document similiary index on all images
         sims = docsim_index[dictionary.doc2bow(art_tags_lower)] # [(ix1, score1), (ix2, score2),....]
