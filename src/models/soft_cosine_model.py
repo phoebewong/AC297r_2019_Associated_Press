@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import csv
 import json
+import pickle
 # NLP
 from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
@@ -10,7 +11,7 @@ from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 class SoftCosine:
     "class function for tag-to-image recommendation"
-    def __init__(self):
+    def __init__(self, num_best=10):
         # dimension of embeddings to use
         # self.D = D
 
@@ -22,7 +23,7 @@ class SoftCosine:
         self.image_summary =  pd.read_csv(f'{constants.CLEAN_DIR}/{constants.Media_Prefix}summary.csv')
 
         # get embeddings
-        self.get_embedding_files()
+        self.get_embedding_files(num_best=num_best)
 
     def get_words_dict(self):
         """
@@ -38,14 +39,16 @@ class SoftCosine:
             with open(f'{constants.EMBEDDING_DIR}/words_dict_{self.D}.json', 'w') as f:
                 json.dump(self.words_dict, f)
 
-    def get_embedding_files(self):
+    def get_embedding_files(self, num_best = 10):
         """
-        Get the bow_corpos, similiarity matrix and docsim index pre-trained on all image tags.
+        Get the dictionary, bow_corpos, similiarity matrix and docsim index pre-trained on all image tags.
         """
         # embeddings
         try:
             with open(f'{constants.EMBEDDING_DIR}/soft_cosine.pkl', "rb") as f:
-                self.bow_corpus, self.similarity_matrix, self.docsim_index = pickle.load(f)
+                self.dictionary, self.bow_corpus, self.similarity_matrix, _ = pickle.load(f)
+            self.docsim_index = SoftCosineSimilarity(self.bow_corpus, self.similarity_matrix, num_best=num_best)
+
         except FileNotFoundError:
             print(f'no file found, training word2vec to get bow_corpus, similarity matrix and docsim index')
             # read in all tags
@@ -56,14 +59,25 @@ class SoftCosine:
                 print(f'no file found at {constants.DATA_DIR}/all_img_tags.pkl')
             model = Word2Vec(all_img_tags_lower, size=20, min_count=1)  # train word2vec
             termsim_index = WordEmbeddingSimilarityIndex(model.wv)
-            dictionary = Dictionary(all_img_tags_lower)
-            self.bow_corpus = [dictionary.doc2bow(document) for document in all_img_tags_lower]
-            self.similarity_matrix = SparseTermSimilarityMatrix(termsim_index, dictionary)  # construct similarity matrix
-            # 10 most similar image tag vectors
-            self.docsim_index = SoftCosineSimilarity(self.bow_corpus, self.similarity_matrix, num_best=10)
+            self.dictionary = Dictionary(all_img_tags_lower)
+            self.bow_corpus = [self.dictionary.doc2bow(document) for document in all_img_tags_lower]
+            self.similarity_matrix = SparseTermSimilarityMatrix(termsim_index, self.dictionary)  # construct similarity matrix
+            # 10 (default) most similar image tag vectors
+            self.docsim_index = SoftCosineSimilarity(self.bow_corpus, self.similarity_matrix, num_best=num_best)
             print(f'Saving bow_corpus, similarity matrix and docsim index to {constants.EMBEDDING_DIR}')
             with open(f'{constants.EMBEDDING_DIR}/soft_cosine.pkl', "wb") as f:
-                pickle.dump((bow_corpus, similarity_matrix, docsim_index), f)
+                pickle.dump((self.dictionary, self.bow_corpus, self.similarity_matrix, self.docsim_index), f)
+
+    def if_valid(csv_entry):
+        "check whether an entry is nan or empty string"
+        try:
+            np.isnan(csv_entry)
+            return False
+        except:
+            if csv_entry in ['', 'nan']:
+                return False
+            else:
+                return True
 
     def get_tags(self, idx, prefix, tag_types):
         """Helper function to get tags"""
@@ -80,7 +94,7 @@ class SoftCosine:
             tag_list = subset[f'{tt}_tag'].values
             for t in tag_list:
                 # check validity of tag
-                if if_valid(t):
+                if self.if_valid(t):
                     at.append(t)
         return at
 
@@ -96,7 +110,7 @@ class SoftCosine:
         except:
             print("Article not found in the data, therefore, cannot find its article ID")
 
-    def predict(self, title, tag_types = ['org', 'place', 'subject', 'person']):
+    def predict(self, title, num_best = 10, tag_types = ['org', 'place', 'subject', 'person']):
         """
         Predicts the closest 10 matching image tag vectors given an article tag vector
         Returns a list of image ids
@@ -113,7 +127,7 @@ class SoftCosine:
         art_tags_lower = list(map(lambda x: x.lower(), self.get_tags(art_id, 'article_', tag_types)))
         # Compare target article tags with other image tags
         # calculate top 10 similar of tags to pre-trained word2vec document similiary index on all images
-        sims = docsim_index[dictionary.doc2bow(art_tags_lower)] # [(ix1, score1), (ix2, score2),....]
+        sims = self.docsim_index[self.dictionary.doc2bow(art_tags_lower)] # [(ix1, score1), (ix2, score2),....]
         # Get top 10 similar image ID
         top_10_img_id = [all_img_id[sim[0]] for sim in sims]
         return top_10_img_id
