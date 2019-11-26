@@ -4,6 +4,15 @@ from src import constants
 import json
 import requests
 import configparser
+import time
+
+def log_data(data):
+    """
+    Logs data (what images people like or dislike) in json files
+    """
+    json_file = constants.LOGGING_DIR / f'{int(time.time()*1000)}.json'
+    with open(json_file, 'w') as f:
+        json.dump(data, f)
 
 def random_article_extractor():
     """

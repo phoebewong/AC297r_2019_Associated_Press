@@ -24,9 +24,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 class InputParams(BaseModel):
-    title: str = None
+    title: str
     body: str
     model: str
+    images: list = []
+    id: str = None
 
 
 @app.post("/match")
@@ -36,23 +38,26 @@ async def new_matches(input_params: InputParams):
 
     # get tags
     title, body, model = input_params.title, input_params.body, input_params.model
+    true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
 
+    # no article text or body
     if len(title) == 0 and len(body) == 0:
         id, title, body = api_helper.random_article_extractor()
         print(f'Missing title and/or body. Using a random article instead')
-        print(f'Random article id:{id}, title: {title}')
-        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
 
+    # new article
     if id == None:
         print(f'New article not in dataset')
         print(f'Title: {title}')
         tags, tag_types = api_helper.tagging_api_new(title, body)
         print(tags, tag_types)
-        true_images = []
-        true_captions = []
+
+    # existing article
     else:
+        print(f'Article id:{id}, title: {title}')
+        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
         true_images = api_helper.article_images(id)
         true_captions = api_helper.image_captions(true_images)
 
@@ -84,13 +89,28 @@ async def new_matches(input_params: InputParams):
     return {
         "status": "ok",
         "data": {
+            "id": id,
+            "title": title,
+            "body": body,
             "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
-            "images": [{"id": id, "caption": pred_captions[i]} for i,id in enumerate(predicted_imgs)],
+            "images": [{"id": id, "caption": pred_captions[i],  "liked": False, "disliked": False} for i,id in enumerate(predicted_imgs)],
             "articles": articles,
             "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
         },
     }
 
+@app.post("/log")
+async def log_data(input_params: InputParams):
+    print('logging data')
+    title, body, model = input_params.title, input_params.body, input_params.model
+    id, images = input_params.id, input_params.images
+
+    # log data
+    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images})
+
+    return {
+        "status": "ok"
+    }
 
 @app.get("/")
 async def home(request: Request):

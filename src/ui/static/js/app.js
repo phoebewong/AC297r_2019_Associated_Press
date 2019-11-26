@@ -6,12 +6,14 @@ var vue = new Vue({
       pending: false,
       show_articles: false,
       error: null,
+      id: "",
       title: "",
       body: "",
       chosen_model: "",
       tags: [],
       images: [],
       true_images: [],
+      log_object: null
     }
   },
   async created () {
@@ -24,6 +26,9 @@ var vue = new Vue({
       var data = { title: this.title, body: this.body, model: this.chosen_model};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
+          this.id = response.body.data.id;
+          this.title = response.body.data.title;
+          this.body = response.body.data.body;
           this.tags = response.body.data.tags;
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
@@ -34,6 +39,15 @@ var vue = new Vue({
           else {
             this.show_articles = false;
           }
+          if (this.log_object) {
+            var log_obj = {title: this.title, body: this.body, model: this.chosen_model,
+                           images: this.images, id: this.id};
+            this.logData(log_obj);
+          }
+          else {
+            this.log_object = {title: this.title, body: this.body, model: this.chosen_model,
+                               images: this.images, id: this.id};
+          }
         }
         this.pending = false;
       }, response => {
@@ -42,8 +56,26 @@ var vue = new Vue({
         this.pending = false;
       });
     },
+    logData(data){
+      console.log("logging data")
+      this.$http.post("/log", this.log_object).then(response => {
+        if (response.body.status == "ok") {
+          this.log_object = data;
+        }
+      }, response => {
+        console.log("logging error", response);
+      });
+    },
     makeImgSource(img_id, cat='preview'){
       return 'static/img/' + cat + '/' + img_id + '.jpg'
+    },
+    likeClicked(img){
+      img.liked = !img.liked;
+      if (img.liked === true) img.disliked = false;
+    },
+    dislikeClicked(img){
+      img.disliked = !img.disliked;
+      if (img.disliked === true) img.liked = false;
     }
   },
   computed: {},
