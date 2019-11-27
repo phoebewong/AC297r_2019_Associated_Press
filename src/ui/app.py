@@ -6,6 +6,7 @@ from src.models.avg_embeddings_model import AvgEmbeddings
 from src.models.soft_cosine_model import SoftCosine
 from src.models.knn_model import KNN
 import numpy as np
+import time
 from src.nlp_util.textacy_util import *
 
 import uvicorn
@@ -17,11 +18,11 @@ from starlette.templating import Jinja2Templates
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-debug = os.environ.get("DEBUG", False)
+debug = os.environ.get('DEBUG', False)
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount('/static', StaticFiles(directory='static'), name='static')
+templates = Jinja2Templates(directory='templates')
 
 class InputParams(BaseModel):
     title: str
@@ -31,10 +32,11 @@ class InputParams(BaseModel):
     id: str = None
 
 
-@app.post("/match")
+@app.post('/match')
 async def new_matches(input_params: InputParams):
-    logger.debug("trying to find good images for article: %s", input_params.title)
-    logger.debug("model used: %s", input_params.model)
+    start_time = time.time()
+    logger.debug('trying to find good images for article: %s', input_params.title)
+    logger.debug('model used: %s', input_params.model)
 
     # get tags
     title, body, model = input_params.title, input_params.body, input_params.model
@@ -62,6 +64,7 @@ async def new_matches(input_params: InputParams):
         true_captions = api_helper.image_captions(true_images)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
+    tag_time = time.time() - start_time
 
     # t2t model stuff
     if model == 't2t':
@@ -86,20 +89,23 @@ async def new_matches(input_params: InputParams):
         pred_captions = api_helper.image_captions(predicted_imgs)
         articles = []
 
+    img_time = time.time() - start_time - tag_time
+
     return {
-        "status": "ok",
-        "data": {
-            "id": id,
-            "title": title,
-            "body": body,
-            "tags": [{"name": tag, "type": tag_types[list(tags).index(tag)], "score": textrank_score[i]} for i, tag in enumerate(entities_list)],
-            "images": [{"id": id, "caption": pred_captions[i],  "liked": False, "disliked": False} for i,id in enumerate(predicted_imgs)],
-            "articles": articles,
-            "true_images": [{"id": id, "caption": true_captions[i]} for i, id in enumerate(true_images)]
+        'status': 'ok',
+        'data': {
+            'id': id,
+            'title': title,
+            'body': body,
+            'tags': [{'name': tag, 'type': tag_types[list(tags).index(tag)], 'score': textrank_score[i]} for i, tag in enumerate(entities_list)],
+            'images': [{'id': id, 'caption': pred_captions[i],  'liked': False, 'disliked': False} for i,id in enumerate(predicted_imgs)],
+            'articles': articles,
+            'true_images': [{'id': id, 'caption': true_captions[i]} for i, id in enumerate(true_images)],
+            'time': {'tag_time': f'{tag_time:0.2f} seconds', 'img_time': f'{img_time:0.2f} seconds'}
         },
     }
 
-@app.post("/log")
+@app.post('/log')
 async def log_data(input_params: InputParams):
     print('logging data')
     title, body, model = input_params.title, input_params.body, input_params.model
@@ -109,22 +115,22 @@ async def log_data(input_params: InputParams):
     api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images})
 
     return {
-        "status": "ok"
+        'status': 'ok'
     }
 
-@app.get("/")
+@app.get('/')
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse('index.html', {'request': request})
 
 
-@app.on_event("startup")
+@app.on_event('startup')
 async def startup_event():
     global embed_model, knn_model, soft_cosine_model
     embed_model = AvgEmbeddings(50)
     soft_cosine_model = SoftCosine()
     knn_model = KNN(3)
-    logger.info("started")
+    logger.info('started')
 
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)
