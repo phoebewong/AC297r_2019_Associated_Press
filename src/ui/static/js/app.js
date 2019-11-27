@@ -10,6 +10,7 @@ var vue = new Vue({
       title: "",
       body: "",
       chosen_model: "",
+      time: null,
       tags: [],
       images: [],
       true_images: [],
@@ -28,6 +29,7 @@ var vue = new Vue({
         if (response.body.status == "ok") {
           this.id = response.body.data.id;
           this.title = response.body.data.title;
+          this.time = response.body.data.time;
           this.body = response.body.data.body;
           this.tags = response.body.data.tags;
           this.images = response.body.data.images;
