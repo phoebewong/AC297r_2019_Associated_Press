@@ -82,7 +82,7 @@ async def new_matches(input_params: InputParams):
         articles = api_helper.matching_articles(article_ids)
 
     elif model == 'softcos':
-        predicted_imgs = soft_cosine_model.predict(title, art_id=id)
+        predicted_imgs = soft_cosine_model.predict(title, art_id=id, tags=tags)
         pred_captions = api_helper.image_captions(predicted_imgs)
         articles = []
 
