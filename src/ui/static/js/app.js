@@ -44,12 +44,12 @@ var vue = new Vue({
           }
           if (this.log_object) {
             var log_obj = {title: this.title, body: this.body, model: this.chosen_model,
-                           images: this.images, id: this.id};
+                           images: this.images, id: this.id, slider: this.slider};
             this.logData(log_obj);
           }
           else {
             this.log_object = {title: this.title, body: this.body, model: this.chosen_model,
-                               images: this.images, id: this.id};
+                               images: this.images, id: this.id, slider: this.slider};
           }
         }
         this.pending = false;

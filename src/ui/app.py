@@ -44,7 +44,7 @@ async def new_matches(input_params: InputParams):
     true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
-    print(slider)
+
     # no article text or body
     if len(title) == 0 and len(body) == 0:
         id, title, body = api_helper.random_article_extractor()
@@ -67,28 +67,28 @@ async def new_matches(input_params: InputParams):
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
     tag_time = time.time() - start_time
 
+    predicted_imgs = []
+    predicted_arts = []
+
     # t2t model stuff
-    if model == 't2t':
+    if model == 't2t' or model == 'all':
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-        predicted_imgs = t2i_object.predict(4)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = []
+        predicted_imgs.extend(t2i_object.predict(4))
 
-    elif model == 'emb':
-        predicted_imgs = embed_model.predict_images(title, k=8)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        article_ids = embed_model.predict_articles(title, k=3, true_id=id)
-        articles = api_helper.matching_articles(article_ids)
+    if model == 'emb' or model == 'all':
+        predicted_imgs.extend(embed_model.predict_images(title, k=4))
+        predicted_arts.extend(embed_model.predict_articles(title, k=3, true_id=id))
 
-    elif model == 'knn':
-        article_ids, predicted_imgs, scores = knn_model.predict(tags, true_id=id)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = api_helper.matching_articles(article_ids)
+    if model == 'knn' or model == 'all':
+        article_ids, img_ids, scores = knn_model.predict(tags, true_id=id)
+        predicted_arts.extend(article_ids)
+        predicted_imgs.extend(img_ids)
 
-    elif model == 'softcos':
-        predicted_imgs = soft_cosine_model.predict(title, art_id=id, tags=tags)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = []
+    if model == 'softcos' or model == 'all':
+        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=4))
+
+    pred_captions = api_helper.image_captions(predicted_imgs)
+    articles = api_helper.matching_articles(predicted_arts)
 
     img_time = time.time() - start_time - tag_time
 
@@ -110,10 +110,10 @@ async def new_matches(input_params: InputParams):
 async def log_data(input_params: InputParams):
     print('logging data')
     title, body, model = input_params.title, input_params.body, input_params.model
-    id, images = input_params.id, input_params.images
+    id, images, slider = input_params.id, input_params.images, input_params.slider
 
     # log data
-    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images})
+    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images, 'slider': slider})
 
     return {
         'status': 'ok'

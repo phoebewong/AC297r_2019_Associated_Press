@@ -139,4 +139,4 @@ class SoftCosine:
         sims = self.docsim_index[self.dictionary.doc2bow(art_tags_lower)] # [(ix1, score1), (ix2, score2),....]
         # Get top 10 similar image ID
         top_10_img_id = [all_img_id[sim[0]] for sim in sims]
-        return top_10_img_id
+        return top_10_img_id[:num_best]
