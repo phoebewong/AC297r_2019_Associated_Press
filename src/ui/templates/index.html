@@ -46,7 +46,7 @@
           <div class="col-sm-12 mb-2">
             <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article title">
             <textarea v-model="body" class="form-control text-center mb-1" id="body" placeholder="Article body" rows=4></textarea>
-            <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:20%; margin-left:40%" id="model">
+            <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:60%; margin-left:20%" id="model">
               <option disabled value="">Select a model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
               <option class="form-control text-center" value="emb">Embedding Model</option>
@@ -54,6 +54,13 @@
               <option class="form-control text-center" value="knn">kNN Model</option>
               <!-- <option class="form-control text-center" value="wem">Word Embedding Model</option> -->
             </select>
+            <div class="d-flex justify-content-center mt-3 mb-2">
+              <span class="mr-3 mt-1" style="text-align: right; width: 100%">Exact Matches Only</span>
+              <form class="range-field">
+                <input class="border-0 custom-range" type="range" min=0 max=10 step=1 />
+              </form>
+              <span class="ml-3 mt-1" style="text-align: left; width: 100%">Thematically Related</span>
+            </div>
           </div>
           <div class="col-sm-12 text-center">
             <button type="submit"
