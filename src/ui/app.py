@@ -77,10 +77,10 @@ async def new_matches(input_params: InputParams):
 
     if model == 'emb' or model == 'all':
         predicted_imgs.extend(embed_model.predict_images(title, k=4))
-        predicted_arts.extend(embed_model.predict_articles(title, k=3, true_id=id))
+        predicted_arts.extend(embed_model.predict_articles(title, k=4, true_id=id))
 
     if model == 'knn' or model == 'all':
-        article_ids, img_ids, scores = knn_model.predict(tags, true_id=id)
+        article_ids, img_ids, scores = knn_model.predict(tags, true_id=id, k=4)
         predicted_arts.extend(article_ids)
         predicted_imgs.extend(img_ids)
 
@@ -129,7 +129,7 @@ async def startup_event():
     global embed_model, knn_model, soft_cosine_model
     embed_model = AvgEmbeddings(50)
     soft_cosine_model = SoftCosine()
-    knn_model = KNN(3)
+    knn_model = KNN()
     logger.info('started')
 
 

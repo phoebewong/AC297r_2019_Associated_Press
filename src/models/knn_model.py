@@ -8,8 +8,7 @@ import json
 # KNN model
 class KNN():
     # @param k: number of neighbors to return
-    def __init__(self, k):
-        self.k = k
+    def __init__(self):
         self.get_article_to_image()
         self.get_train_csv()
 
@@ -60,15 +59,13 @@ class KNN():
     # @param sim: function to return similarity score
     # @param test: article to predict in form (id, tags)
     # TODO: implement sep functions for text train and image train
-    def predict(self, test_tags, true_id=None):
+    def predict(self, test_tags, true_id=None, k=4):
         ranks = {}
         train = self.train.copy()
         train_ids, train_tags_all = train['id'].values, train['tags'].values
         test_tags = [t.lower().replace('"',"") for t in test_tags]
         if true_id is not None:
-            k = self.k + 1 # eliminating the true article
-        else:
-            k = self.k
+            k = k + 1 # eliminating the true article
 
         # go through ids
         for ind in range(len(train_ids)):
@@ -99,7 +96,7 @@ class KNN():
         return article_ids, pred_imgs, scores
 
 if __name__ == '__main__':
-    knn = KNN(3)
+    knn = KNN()
     test_tags = ['bernie sanders', 'hillary clinton', 'jackie cilley', 'presidential elections', 'campaigns', 'elizabeth warren', 'government and politics', 'sherrod brown', 'political endorsements', 'elections', 'state elections', 'united states presidential election', 'u.s. democratic party', 'nan', 'national elections', 'kamala harris', 'kirsten gillibrand', 'social issues']
     article_ids, pred_imgs, scores = knn.predict(test_tags)
     print(pred_imgs)
