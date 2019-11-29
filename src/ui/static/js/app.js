@@ -10,6 +10,7 @@ var vue = new Vue({
       title: "",
       body: "",
       chosen_model: "all",
+      slider: 5,
       time: null,
       tags: [],
       images: [],
@@ -24,7 +25,7 @@ var vue = new Vue({
     getMatches () {
       console.log("fetching matches");
       this.pending = true;
-      var data = { title: this.title, body: this.body, model: this.chosen_model};
+      var data = { title: this.title, body: this.body, model: this.chosen_model, slider: this.slider};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
           this.id = response.body.data.id;

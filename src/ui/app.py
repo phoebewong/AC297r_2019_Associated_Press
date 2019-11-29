@@ -28,6 +28,7 @@ class InputParams(BaseModel):
     title: str
     body: str
     model: str
+    slider: int
     images: list = []
     id: str = None
 
@@ -39,11 +40,11 @@ async def new_matches(input_params: InputParams):
     logger.debug('model used: %s', input_params.model)
 
     # get tags
-    title, body, model = input_params.title, input_params.body, input_params.model
+    title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider
     true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
-
+    print(slider)
     # no article text or body
     if len(title) == 0 and len(body) == 0:
         id, title, body = api_helper.random_article_extractor()

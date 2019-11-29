@@ -56,7 +56,7 @@
             <div v-if="chosen_model === 'all'" class="d-flex justify-content-center mt-3">
               <span class="mr-3 mt-1 font-weight-light" style="text-align: right; width: 100%">Exact Matches Only</span>
               <form class="range-field">
-                <input class="border-0 custom-range" type="range" min=0 max=10 step=1 value=5 />
+                <input v-model="slider" class="border-0 custom-range" type="range" min=0 max=10 step=1 value=5 />
               </form>
               <span class="ml-3 mt-1 font-weight-light" style="text-align: left; width: 100%">Thematically Related Only</span>
             </div>
