@@ -9,7 +9,7 @@ var vue = new Vue({
       id: "",
       title: "",
       body: "",
-      chosen_model: "",
+      chosen_model: "all",
       time: null,
       tags: [],
       images: [],
