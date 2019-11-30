@@ -97,6 +97,9 @@ class KNN():
 
 if __name__ == '__main__':
     knn = KNN()
-    test_tags = ['bernie sanders', 'hillary clinton', 'jackie cilley', 'presidential elections', 'campaigns', 'elizabeth warren', 'government and politics', 'sherrod brown', 'political endorsements', 'elections', 'state elections', 'united states presidential election', 'u.s. democratic party', 'nan', 'national elections', 'kamala harris', 'kirsten gillibrand', 'social issues']
+    test_tags = ['bernie sanders', 'hillary clinton', 'jackie cilley', 'presidential elections', 'campaigns',
+                 'elizabeth warren', 'government and politics', 'sherrod brown', 'political endorsements', 'elections',
+                 'state elections', 'united states presidential election', 'u.s. democratic party', 'nan', 'national elections',
+                 'kamala harris', 'kirsten gillibrand', 'social issues']
     article_ids, pred_imgs, scores = knn.predict(test_tags)
     print(pred_imgs)

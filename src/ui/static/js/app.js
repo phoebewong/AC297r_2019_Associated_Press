@@ -11,6 +11,7 @@ var vue = new Vue({
       body: "",
       chosen_model: "all",
       slider: 5,
+      num_images: 16,
       time: null,
       tags: [],
       images: [],
