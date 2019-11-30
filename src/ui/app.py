@@ -37,7 +37,6 @@ class InputParams(BaseModel):
     images: list = []
     id: str = None
 
-
 @app.post('/match')
 async def new_matches(input_params: InputParams):
     start_time = time.time()
@@ -130,7 +129,6 @@ async def log_data(input_params: InputParams):
 async def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
 
-
 @app.on_event('startup')
 async def startup_event():
     global embed_model, knn_model, soft_cosine_model
@@ -138,7 +136,6 @@ async def startup_event():
     soft_cosine_model = SoftCosine()
     knn_model = KNN()
     logger.info('started')
-
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)
