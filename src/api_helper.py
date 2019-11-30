@@ -57,15 +57,23 @@ def image_captions(ids):
     """
     csv_file = constants.CLEAN_DIR / 'image_summary.csv'
     data = pd.read_csv(csv_file)
-    subset = data[['id', 'headline']]
+    subset = data[['id', 'headline', 'summary']]
     captions = []
+    summaries = []
     for id in ids:
+        subsubset = subset[subset['id'] == id]
         try:
-            caption = subset[subset['id'] == id]['headline'].values[0]
+            caption = subsubset['headline'].values[0]
         except:
             caption = 'No Caption'
         captions.append(caption)
-    return captions
+
+        try:
+            summary = subsubset['summary'].values[0]
+        except:
+            caption = 'No Summary'
+        summaries.append(summary)
+    return captions, summaries
 
 def tagging_api_existing(title, body):
     """

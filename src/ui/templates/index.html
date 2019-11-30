@@ -126,7 +126,7 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal" data-target="#imageModal" v-on:click="updateImage(image)">
               <p class="mb-1"> {{ image.caption }} </p>
               <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">Accept</button>
               <button v-else type="button" v-on:click="likeClicked(image)" class="btn btn-success btn-sm">Accept</button>
@@ -138,6 +138,28 @@
       </div>
       <div v-else>
         No images.
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div v-if="clickedImage" class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="imageModalLabel">{{ clickedImage.caption }}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div style="text-align-last:center">
+            <img class="img-fluid" :src="makeImgSource(clickedImage.id)">
+          </div>
+          <p class="mb-1 mt-2 text-center font-weight-light" style="font-size:80%"> {{ clickedImage.summary }} </p>
+          <div v-if="tags.length" class="font-weight-light mt-2 text-center" style="font-size:70%">
+            {{ getTagString() }}
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -3,6 +3,7 @@ var vue = new Vue({
   el: "#app",
   data () {
     return {
+      clickedImage: null,
       pending: false,
       show_articles: false,
       error: null,
@@ -80,6 +81,16 @@ var vue = new Vue({
     dislikeClicked(img){
       img.disliked = !img.disliked;
       if (img.disliked === true) img.liked = false;
+    },
+    updateImage(image){
+      this.clickedImage = image;
+    },
+    getTagString(){
+      var string = ''
+      for (const i in this.tags) {
+        string += this.tags[i].name + ' (' + this.tags[i].type + ') | '
+      }
+      return string;
     }
   },
   computed: {},

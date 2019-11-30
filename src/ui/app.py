@@ -75,7 +75,7 @@ async def new_matches(input_params: InputParams):
         print(f'Article id:{id}, title: {title}')
         id, tags, tag_types = api_helper.tagging_api_existing(title, body)
         true_images = api_helper.article_images(id)
-        true_captions = api_helper.image_captions(true_images)
+        true_captions, true_summaries = api_helper.image_captions(true_images)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
     tag_time = time.time() - start_time
@@ -101,7 +101,7 @@ async def new_matches(input_params: InputParams):
     if model == 'softcos' or model == 'all':
         predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_per_model))
 
-    pred_captions = api_helper.image_captions(predicted_imgs)
+    pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
     articles = api_helper.matching_articles(predicted_arts)
 
     img_time = time.time() - start_time - tag_time
@@ -112,10 +112,21 @@ async def new_matches(input_params: InputParams):
             'id': id,
             'title': title,
             'body': body,
-            'tags': [{'name': tag, 'type': tag_types[list(tags).index(tag)], 'score': textrank_score[i]} for i, tag in enumerate(entities_list)],
-            'images': [{'id': id, 'caption': pred_captions[i],  'liked': False, 'disliked': False} for i,id in enumerate(predicted_imgs)],
+            'tags': [{'name': tag,
+                      'type': tag_types[list(tags).index(tag)],
+                      'score': textrank_score[i]
+                      } for i, tag in enumerate(entities_list)],
+            'images': [{'id': id,
+                        'caption': pred_captions[i],
+                        'summary': pred_summaries[i],
+                        'liked': False,
+                        'disliked': False
+                        } for i,id in enumerate(predicted_imgs)],
             'articles': articles,
-            'true_images': [{'id': id, 'caption': true_captions[i]} for i, id in enumerate(true_images)],
+            'true_images': [{'id': id,
+                             'caption': true_captions[i],
+                             'summary': true_summaries[i],
+                             } for i, id in enumerate(true_images)],
             'time': {'tag_time': f'{tag_time:0.2f} seconds', 'img_time': f'{img_time:0.2f} seconds'}
         },
     }
@@ -140,8 +151,8 @@ async def home(request: Request):
 @app.on_event('startup')
 async def startup_event():
     global embed_model, knn_model, soft_cosine_model
-    embed_model = AvgEmbeddings(50)
-    soft_cosine_model = SoftCosine()
+    # embed_model = AvgEmbeddings(50)
+    # soft_cosine_model = SoftCosine()
     knn_model = KNN()
     logger.info('started')
 
