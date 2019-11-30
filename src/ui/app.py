@@ -29,6 +29,7 @@ class InputParams(BaseModel):
     body: str
     model: str
     slider: int
+    num: int
     images: list = []
     id: str = None
 
@@ -41,6 +42,7 @@ async def new_matches(input_params: InputParams):
 
     # get tags
     title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider
+    num = input_params.num
     true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
@@ -111,9 +113,10 @@ async def log_data(input_params: InputParams):
     print('logging data')
     title, body, model = input_params.title, input_params.body, input_params.model
     id, images, slider = input_params.id, input_params.images, input_params.slider
+    num = input_params.num
 
     # log data
-    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images, 'slider': slider})
+    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images, 'slider': slider, 'num': num})
 
     return {
         'status': 'ok'

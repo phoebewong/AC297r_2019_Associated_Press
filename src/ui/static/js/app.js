@@ -11,7 +11,7 @@ var vue = new Vue({
       body: "",
       chosen_model: "all",
       slider: 5,
-      num_images: 16,
+      num: 16,
       time: null,
       tags: [],
       images: [],
@@ -26,7 +26,7 @@ var vue = new Vue({
     getMatches () {
       console.log("fetching matches");
       this.pending = true;
-      var data = { title: this.title, body: this.body, model: this.chosen_model, slider: this.slider};
+      var data = { title: this.title, body: this.body, model: this.chosen_model, slider: this.slider, num: this.num};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
           this.id = response.body.data.id;
@@ -45,12 +45,12 @@ var vue = new Vue({
           }
           if (this.log_object) {
             var log_obj = {title: this.title, body: this.body, model: this.chosen_model,
-                           images: this.images, id: this.id, slider: this.slider};
+                           images: this.images, id: this.id, slider: this.slider, num: this.num};
             this.logData(log_obj);
           }
           else {
             this.log_object = {title: this.title, body: this.body, model: this.chosen_model,
-                               images: this.images, id: this.id, slider: this.slider};
+                               images: this.images, id: this.id, slider: this.slider, num: this.num};
           }
         }
         this.pending = false;

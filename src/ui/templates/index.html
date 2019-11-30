@@ -65,15 +65,15 @@
           <div v-if="chosen_model" class="col-sm-12 text-center">
             <div class="btn-group">
               <button type="button" class="btn btn-primary float-center" @click.prevent="getMatches" :disabled="pending">
-                Get {{num_images}} Images
+                Get {{num}} Images
               </button>
               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" v-on:click="num_images = 16">16</a>
-                <a class="dropdown-item" v-on:click="num_images = 32">32</a>
-                <a class="dropdown-item" v-on:click="num_images = 64">64</a>
+                <a class="dropdown-item" v-on:click="num = 16">16</a>
+                <a class="dropdown-item" v-on:click="num = 32">32</a>
+                <a class="dropdown-item" v-on:click="num = 64">64</a>
               </div>
             </div>
           </div>
