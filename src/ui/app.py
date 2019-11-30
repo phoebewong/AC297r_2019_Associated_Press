@@ -82,7 +82,8 @@ async def new_matches(input_params: InputParams):
         predicted_arts.extend(embed_model.predict_articles(title, k=4, true_id=id))
 
     if model == 'knn' or model == 'all':
-        article_ids, img_ids, scores = knn_model.predict(tags, true_id=id, k=4)
+        article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=4)
+        image_ids, scores = knn_model.predict_images(tags, k=4)
         predicted_arts.extend(article_ids)
         predicted_imgs.extend(img_ids)
 
