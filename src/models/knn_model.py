@@ -15,6 +15,9 @@ class KNN():
         self.get_train_csv()
 
     def get_train_csv(self):
+        """
+        Get/create the files used for the kNN model
+        """
         try:
             self.train_article = pd.read_csv(constants.DATA_DIR / 'knn_article_tags.csv')
         except FileNotFoundError:
@@ -51,16 +54,22 @@ class KNN():
 
             train = pd.DataFrame({'id':train.index, 'tags':train.values})
             train.to_csv(constants.DATA_DIR / 'knn_image_tags.csv', header=True)
-            self.train_article = train
+            self.train_image = train
 
-    # returns number of normalized exact tag overlap
     def baseline_score(self,t0,t1):
+        """
+        returns number of normalized exact tag overlap
+        """
         return len(set(t0) & set(t1))/len(set(t0).union(set(t1)))
 
-    # @param sim: function to return similarity score
-    # @param test: article to predict in form (id, tags)
-    # TODO: implement sep functions for text train and image train
     def predict_articles(self, test_tags, true_id=None, k=4):
+        """
+        Function to predict top matching articles
+        @param sim: function to return similarity score
+        @param test: article to predict in form (id, tags)
+        @param true_id: if the article being used is an actual
+        @param k: number of articles to look for
+        """
         ranks = {}
         train = self.train_article.copy()
         train_ids, train_tags_all = train['id'].values, train['tags'].values
@@ -90,6 +99,12 @@ class KNN():
         return article_ids, scores
 
     def predict_images(self, test_tags, k=4):
+        """
+        Function to predict top matching articles
+        @param sim: function to return similarity score
+        @param test: article to predict in form (id, tags)
+        @param k: number of images to look for
+        """
         ranks = {}
         train = self.train_image.copy()
         train_ids, train_tags_all = train['id'].values, train['tags'].values
