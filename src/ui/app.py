@@ -83,7 +83,7 @@ async def new_matches(input_params: InputParams):
 
     if model == 'knn' or model == 'all':
         article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=4)
-        image_ids, scores = knn_model.predict_images(tags, k=4)
+        img_ids, scores = knn_model.predict_images(tags, k=4)
         predicted_arts.extend(article_ids)
         predicted_imgs.extend(img_ids)
 
