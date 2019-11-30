@@ -1,14 +1,18 @@
+# general imports
 import os
 import logging
-from src import api_helper
+import numpy as np
+import time
+
+# models
 from src.models import t2i_recsys
 from src.models.avg_embeddings_model import AvgEmbeddings
 from src.models.soft_cosine_model import SoftCosine
 from src.models.knn_model import KNN
-import numpy as np
-import time
 from src.nlp_util.textacy_util import *
 
+# API and UI files
+from src import api_helper
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -116,7 +120,6 @@ async def log_data(input_params: InputParams):
     id, images, slider = input_params.id, input_params.images, input_params.slider
     num = input_params.num
 
-    # log data
     api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images, 'slider': slider, 'num': num})
 
     return {
