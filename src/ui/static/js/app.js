@@ -37,7 +37,7 @@ var vue = new Vue({
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
           this.true_images = response.body.data.true_images;
-          if (this.chosen_model === "emb" || this.chosen_model === "knn"){
+          if (this.chosen_model === "emb" || this.chosen_model === "knn" || this.chosen_model === "all"){
             this.show_articles = true;
           }
           else {

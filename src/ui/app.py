@@ -46,6 +46,14 @@ async def new_matches(input_params: InputParams):
     # get tags
     title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider
     num = input_params.num
+
+    if model == 'all':
+        num_per_model = int(num/4)
+        num_arts = 2
+    else:
+        num_per_model = num
+        num_arts = 4
+
     true_images, true_captions = [], []
 
     id = api_helper.article_id_extractor(title, body)
@@ -78,20 +86,20 @@ async def new_matches(input_params: InputParams):
     # t2t model stuff
     if model == 't2t' or model == 'all':
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-        predicted_imgs.extend(t2i_object.predict(4))
+        predicted_imgs.extend(t2i_object.predict(num_per_model))
 
     if model == 'emb' or model == 'all':
-        predicted_imgs.extend(embed_model.predict_images(title, k=4))
-        predicted_arts.extend(embed_model.predict_articles(title, k=4, true_id=id))
+        predicted_imgs.extend(embed_model.predict_images(title, k=num_per_model))
+        predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
 
     if model == 'knn' or model == 'all':
-        article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=4)
-        img_ids, scores = knn_model.predict_images(tags, k=4)
+        img_ids, scores = knn_model.predict_images(tags, k=num_per_model)
+        article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=num_arts)
         predicted_arts.extend(article_ids)
         predicted_imgs.extend(img_ids)
 
     if model == 'softcos' or model == 'all':
-        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=4))
+        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_per_model))
 
     pred_captions = api_helper.image_captions(predicted_imgs)
     articles = api_helper.matching_articles(predicted_arts)

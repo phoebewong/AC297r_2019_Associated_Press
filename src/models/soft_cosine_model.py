@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore", message="invalid value encountered in multiply
 
 class SoftCosine:
     "class function for tag-to-image recommendation"
-    def __init__(self, num_best=10):
+    def __init__(self, num_best=64):
         # dimension of embeddings to use
         # self.D = D
 
