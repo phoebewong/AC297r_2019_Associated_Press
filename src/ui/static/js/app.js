@@ -87,8 +87,8 @@ var vue = new Vue({
     },
     getTagString(){
       var string = ''
-      for (const i in this.tags) {
-        string += this.tags[i].name + ' (' + this.tags[i].type + ') | '
+      for (const i in this.clickedImage.tags) {
+        string += this.clickedImage.tags[i] + ' | '
       }
       return string;
     }

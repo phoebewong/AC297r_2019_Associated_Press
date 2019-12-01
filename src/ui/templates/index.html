@@ -67,7 +67,8 @@
               <button type="button" class="btn btn-primary float-center" @click.prevent="getMatches" :disabled="pending">
                 Get {{num}} Images
               </button>
-              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="btn btn-primary dropdown-toggle" :disabled="pending"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu">
@@ -126,11 +127,16 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal" data-target="#imageModal" v-on:click="updateImage(image)">
+              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal" data-target="#imageModal"
+                   v-on:click="updateImage(image)">
               <p class="mb-1"> {{ image.caption }} </p>
-              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">Accept</button>
+              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">
+                Accept
+              </button>
               <button v-else type="button" v-on:click="likeClicked(image)" class="btn btn-success btn-sm">Accept</button>
-              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">
+                Reject
+              </button>
               <button v-else type="button" v-on:click="dislikeClicked(image)" class="btn btn-danger btn-sm">Reject</button>
             </div>
           </div>
@@ -156,7 +162,7 @@
             <img class="img-fluid" :src="makeImgSource(clickedImage.id)">
           </div>
           <p class="mb-1 mt-2 text-center font-weight-light" style="font-size:80%"> {{ clickedImage.summary }} </p>
-          <div v-if="tags.length" class="font-weight-light mt-2 text-center" style="font-size:70%">
+          <div v-if="clickedImage.tags.length" class="font-weight-light mt-2 text-center" style="font-size:70%">
             {{ getTagString() }}
           </div>
         </div>
@@ -193,7 +199,8 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in true_images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal"
+                   data-target="#imageModal" v-on:click="updateImage(image)">
               <p class="mb-1"> {{ image.caption }} </p>
             </div>
           </div>

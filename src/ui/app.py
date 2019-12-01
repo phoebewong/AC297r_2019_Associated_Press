@@ -13,6 +13,7 @@ from src.nlp_util.textacy_util import *
 
 # API and UI files
 from src import api_helper
+from src import tagging_api
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -54,7 +55,7 @@ async def new_matches(input_params: InputParams):
         num_per_model = num
         num_arts = 4
 
-    true_images, true_captions = [], []
+    true_images, true_captions, true_summaries, true_tags = [], [], [], []
 
     id = api_helper.article_id_extractor(title, body)
 
@@ -67,15 +68,16 @@ async def new_matches(input_params: InputParams):
     if id == None:
         print(f'New article not in dataset')
         print(f'Title: {title}')
-        tags, tag_types = api_helper.tagging_api_new(title, body)
+        tags, tag_types = tagging_api.tagging_api_new(title, body)
         print(tags, tag_types)
 
     # existing article
     else:
         print(f'Article id:{id}, title: {title}')
-        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
+        id, tags, tag_types = tagging_api.tagging_api_existing(title, body)
         true_images = api_helper.article_images(id)
         true_captions, true_summaries = api_helper.image_captions(true_images)
+        true_tags = api_helper.image_tags(true_images)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
     tag_time = time.time() - start_time
@@ -102,7 +104,8 @@ async def new_matches(input_params: InputParams):
         predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_per_model))
 
     pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
-    articles = api_helper.matching_articles(predicted_arts)
+    articles = api_helper.article_headlines(predicted_arts)
+    image_tags = api_helper.image_tags(predicted_imgs)
 
     img_time = time.time() - start_time - tag_time
 
@@ -119,6 +122,7 @@ async def new_matches(input_params: InputParams):
             'images': [{'id': id,
                         'caption': pred_captions[i],
                         'summary': pred_summaries[i],
+                        'tags': image_tags[i],
                         'liked': False,
                         'disliked': False
                         } for i,id in enumerate(predicted_imgs)],
@@ -126,6 +130,7 @@ async def new_matches(input_params: InputParams):
             'true_images': [{'id': id,
                              'caption': true_captions[i],
                              'summary': true_summaries[i],
+                             'tags': true_tags[i],
                              } for i, id in enumerate(true_images)],
             'time': {'tag_time': f'{tag_time:0.2f} seconds', 'img_time': f'{img_time:0.2f} seconds'}
         },
@@ -151,8 +156,8 @@ async def home(request: Request):
 @app.on_event('startup')
 async def startup_event():
     global embed_model, knn_model, soft_cosine_model
-    # embed_model = AvgEmbeddings(50)
-    # soft_cosine_model = SoftCosine()
+    embed_model = AvgEmbeddings(50)
+    soft_cosine_model = SoftCosine()
     knn_model = KNN()
     logger.info('started')
 
