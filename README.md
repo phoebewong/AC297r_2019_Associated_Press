@@ -7,6 +7,8 @@ Create a new Python virtualenv with 3.6.8+. Run `pip install -r requirements.txt
 
 To run the tests, run `pytest test_project.py` from the project root.
 
+To activate the virtual environment, run `source env/bin/activate` in terminal.
+
 ### Data cleaning and preprocessing pipeline
 
 Below is the data cleaning / preprocessing stream now to get cleaned training, test, and validation dataset:
