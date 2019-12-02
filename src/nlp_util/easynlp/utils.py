@@ -169,34 +169,34 @@ class StringPrepare(object):
                                         pagerank_config=pagerank_config)  # 关键词排序
         return TR4KW.filter_keywords(sorted_words)  # 返回过滤的结果
 
-    def sort_sentences(sentences, words, model, pagerank_config={'alpha': 0.85, }):
-        """将句子按照关键程度从大到小排序
-
-        Keyword arguments:
-        sentences         --  列表，元素是句子
-        words             --  二维列表，子列表和sentences中的句子对应，子列表由单词组成
-        sim_func          --  计算两个句子的相似性，参数是两个由单词组成的列表
-        pagerank_config   --  pagerank的设置
-        """
-        sorted_sentences = []
-        _source = words
-        sentences_num = len(_source)
-        graph = np.zeros((sentences_num, sentences_num))
-
-        for x in range(sentences_num):
-            for y in range(x, sentences_num):
-                similarity = get_similarity(_source[x], _source[y], model)
-                graph[x, y] = similarity
-                graph[y, x] = similarity
-        nx_graph = nx.from_numpy_matrix(graph)
-        scores = nx.pagerank(nx_graph, **pagerank_config)  # this is a dict
-        sorted_scores = sorted(scores.items(), key=lambda item: item[1], reverse=True)
-
-        for index, score in sorted_scores:
-            item = AttrDict(index=index, sentence=sentences[index], weight=score)
-            sorted_sentences.append(item)
-
-        return sorted_sentences
+    # def sort_sentences(sentences, words, model, pagerank_config={'alpha': 0.85, }):
+    #     """将句子按照关键程度从大到小排序
+    #
+    #     Keyword arguments:
+    #     sentences         --  列表，元素是句子
+    #     words             --  二维列表，子列表和sentences中的句子对应，子列表由单词组成
+    #     sim_func          --  计算两个句子的相似性，参数是两个由单词组成的列表
+    #     pagerank_config   --  pagerank的设置
+    #     """
+    #     sorted_sentences = []
+    #     _source = words
+    #     sentences_num = len(_source)
+    #     graph = np.zeros((sentences_num, sentences_num))
+    #
+    #     for x in range(sentences_num):
+    #         for y in range(x, sentences_num):
+    #             similarity = get_similarity(_source[x], _source[y], model)
+    #             graph[x, y] = similarity
+    #             graph[y, x] = similarity
+    #     nx_graph = nx.from_numpy_matrix(graph)
+    #     scores = nx.pagerank(nx_graph, **pagerank_config)  # this is a dict
+    #     sorted_scores = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    #
+    #     for index, score in sorted_scores:
+    #         item = AttrDict(index=index, sentence=sentences[index], weight=score)
+    #         sorted_sentences.append(item)
+    #
+    #     return sorted_sentences
 
 
 stringPrepareHandle = StringPrepare()
