@@ -44,19 +44,19 @@
       <form class="form">
         <div class="row" style="width: 90%; margin-left: 5%">
           <div class="col-sm-12 mb-2">
-            <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article title">
+            <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article headline">
             <textarea v-model="body" class="form-control text-center mb-1" id="body" placeholder="Article body" rows=4></textarea>
             <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:60%; margin-left:20%" id="model">
               <option class="form-control text-center" value="all">Ensemble Model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
               <option class="form-control text-center" value="emb">Embedding Model</option>
               <option class="form-control text-center" value="softcos">Soft Cosine Model</option>
-              <option class="form-control text-center" value="knn">kNN Model</option>
+              <option class="form-control text-center" value="knn">k-Nearest Neighbor Model</option>
             </select>
             <div v-if="chosen_model === 'all'" class="d-flex justify-content-center mt-3">
               <span class="mr-3 mt-1 font-weight-light" style="text-align: right; width: 100%">Exact Matches Only</span>
               <form class="range-field">
-                <input v-model="slider" class="border-0 custom-range" type="range" min=0 max=10 step=1 value=5 />
+                <input v-model="slider" class="border-0 custom-range" type="range" min=0 max=10 step=2.5 value=5 />
               </form>
               <span class="ml-3 mt-1 font-weight-light" style="text-align: left; width: 100%">Thematically Related Only</span>
             </div>
@@ -164,6 +164,9 @@
           <p class="mb-1 mt-2 text-center font-weight-light" style="font-size:80%"> {{ clickedImage.summary }} </p>
           <div v-if="clickedImage.tags.length" class="font-weight-light mt-2 text-center" style="font-size:70%">
             {{ getTagString() }}
+          </div>
+          <div class="font-weight-light mt-2 text-center" style="font-size:70%">
+            {{ clickedImage.model }}
           </div>
         </div>
       </div>

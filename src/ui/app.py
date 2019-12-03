@@ -29,11 +29,16 @@ app = FastAPI()
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
+model_names_dict = {'t2t': 'Tag-to-tag Model',
+                    'emb': 'Embedding Model',
+                    'softcos': 'Soft Cosine Model',
+                    'knn': 'k-Nearest Neighbor Model'}
+
 class InputParams(BaseModel):
     title: str
     body: str
     model: str
-    slider: int
+    slider: float
     num: int
     images: list = []
     id: str = None
@@ -84,24 +89,44 @@ async def new_matches(input_params: InputParams):
 
     predicted_imgs = []
     predicted_arts = []
+    model_names = []
 
-    # t2t model stuff
-    if model == 't2t' or model == 'all':
+    # Multiplier based on slider value
+    # 0: t2t and knn (2), softcos and emb (0)
+    # 2.5: t2t and knn (1.5), softcos and emb (0.5)
+    # 5: t2t and knn (1), softcos and emb (1)
+    # 7.5: t2t & knn (0.5), softcos and emb (1.5)
+    # 10: t2t & knn (0), softcos and emb (2)
+
+    multiplier = (10-slider)/5.0
+    num_imgs = int(multiplier*num_per_model) if model == 'all' else num_per_model
+
+    # exact tag based models
+    if model == 't2t' or model == 'all' and num_imgs > 0:
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-        predicted_imgs.extend(t2i_object.predict(num_per_model))
+        predicted_imgs.extend(t2i_object.predict(num_imgs))
+        model_names.extend(['t2t']*num_imgs)
 
-    if model == 'emb' or model == 'all':
-        predicted_imgs.extend(embed_model.predict_images(title, k=num_per_model))
-        predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
-
-    if model == 'knn' or model == 'all':
-        img_ids, scores = knn_model.predict_images(tags, k=num_per_model)
+    if model == 'knn' or model == 'all' and num_imgs > 0:
+        img_ids, scores = knn_model.predict_images(tags, k=num_imgs)
         article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=num_arts)
         predicted_arts.extend(article_ids)
         predicted_imgs.extend(img_ids)
+        model_names.extend(['knn']*num_imgs)
 
-    if model == 'softcos' or model == 'all':
-        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_per_model))
+    # reseting multiplier for semantically related models
+    multiplier = slider/5.0
+    num_imgs = int(multiplier*num_per_model) if model == 'all' else num_per_model
+
+    # semantically related models
+    if model == 'emb' or model == 'all' and num_imgs > 0:
+        predicted_imgs.extend(embed_model.predict_images(title, k=num_imgs))
+        predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
+        model_names.extend(['emb']*num_imgs)
+
+    if model == 'softcos' or model == 'all' and num_imgs > 0:
+        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_imgs))
+        model_names.extend(['softcos']*num_imgs)
 
     pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
     articles = api_helper.article_headlines(predicted_arts)
@@ -123,6 +148,7 @@ async def new_matches(input_params: InputParams):
                         'caption': pred_captions[i],
                         'summary': pred_summaries[i],
                         'tags': image_tags[i],
+                        'model': model_names_dict[model_names[i]],
                         'liked': False,
                         'disliked': False
                         } for i,id in enumerate(predicted_imgs)],

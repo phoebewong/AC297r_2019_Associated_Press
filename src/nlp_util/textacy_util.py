@@ -3,7 +3,6 @@ import pandas as pd
 from spacy.tokens import Doc
 import numpy as np
 import textacy.ke
-from sklearn.preprocessing import Normalizer # for textrank normalizing
 
 en = textacy.load_spacy_lang("en_core_web_sm", disable=("parser",))
 
@@ -43,7 +42,6 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     Parameters:
     textrank_words: numpy array of textrank ngram tokens
     entities_list: list or numpy array of named entities extracted
-
     Return:
     A numpy array of textrank ngram tokens that contain named entities extracted
     '''
@@ -84,7 +82,6 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     use_spacy_entities: default False, True if wants to use spacy NER instead of tagging api
     tagging_API_entities: a numpy array of entities extracted from tagging API, only used when use_spacy_entities=False
     return_textrank_bags: default False, True if only wants to use textrank scores (and no entities)
-
     Return:
     textrank_entities: A numpy array of textrank ngram tokens that contain named entities extracted
     textrank_score: textrank importance score of textrank_entities (excluding those that do not contain named entities)
@@ -119,10 +116,8 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     # Get average textrank score per entity and sort the df in descending order
     temp_df2 = temp_df.groupby('named_entities').mean().sort_values(by = 'TextRank_score', ascending=False).reset_index()
     textrank_score = temp_df2['TextRank_score'].values
-    ## Normalize textrank score
-    textrank_score_normalized = Normalizer().fit_transform(textrank_score.reshape(1, -1)).reshape(1, -1).flatten()
-
+    entities_output = temp_df2['named_entities'].values
     # Return named entities extracted that existed in textrank keywords
     # entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
 
-    return textrank_entities, np.round(textrank_score_normalized, 5), entities_output
+    return textrank_entities, np.round(textrank_score, 5), entities_output
