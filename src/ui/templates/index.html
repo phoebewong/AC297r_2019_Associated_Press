@@ -49,6 +49,8 @@
             <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:20%; margin-left:40%" id="model">
               <option disabled value="">Select a model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
+              <option class="form-control text-center" value="emb">Embedding Model</option>
+              <option class="form-control text-center" value="softcos">Soft Cosine Model</option>
               <option class="form-control text-center" value="knn">kNN Model</option>
               <!-- <option class="form-control text-center" value="wem">Word Embedding Model</option> -->
             </select>
@@ -67,13 +69,14 @@
     </div>
   </div>
 
-  <div class="font-weight-light text-center row mt-4 mb-0">
-    <div class="col">
+  <div class="font-weight-light text-center row mt-4">
+    <div class="col mb-0">
       <h3 class="font-weight-light">
         Tags
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
+        <small v-if="time" class="text-center" style="font-size: 5%; color: gray;"> {{ time.tag_time }} </small>
       </h3>
       <div v-if="tags.length" style="width:80%; margin-left:10%">
         <div v-for="tag in tags" style="display:inline-block; padding:0.2em">
@@ -97,30 +100,14 @@
     </div>
   </div>
 
-  <!-- <div class="font-weight-light text-center row mt-4 mb-0">
-    <div class="col">
-      <h3 class="font-weight-light">
-        Similar Article Headlines
-        <span v-show="pending">
-          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
-        </span>
-      </h3>
-      <div v-if="tags.length">
-        <div v-for="article in articles">{{ article.headline }}</div>
-      </div>
-      <div v-else>
-        No matches.
-      </div>
-    </div>
-  </div> -->
-
-  <div class="font-weight-light text-center row mt-4 mb-0">
+  <div class="font-weight-light text-center row mt-4">
     <div class="col">
       <h3 class="font-weight-light">
         Recommended Images
         <span v-show="pending">
           <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
         </span>
+        <small v-if="time" class="text-center" style="font-size: 5%; color: gray;"> {{ time.img_time }} </small>
       </h3>
       <div v-if="images.length" class="container">
         <div class="row text-center text-lg-left mb-3">
@@ -128,8 +115,10 @@
             <div class="d-block mb-4 h-100 text-center">
               <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
               <p class="mb-1"> {{ image.caption }} </p>
-              <button type="button" class="btn btn-outline-success btn-sm">Accept</button>
-              <button type="button" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">Accept</button>
+              <button v-else type="button" v-on:click="likeClicked(image)" class="btn btn-success btn-sm">Accept</button>
+              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-else type="button" v-on:click="dislikeClicked(image)" class="btn btn-danger btn-sm">Reject</button>
             </div>
           </div>
         </div>
@@ -140,7 +129,24 @@
     </div>
   </div>
 
-  <div class="font-weight-light text-center row mt-4 mb-0">
+  <div v-if="show_articles" class="font-weight-light text-center row mt-4 mb-2">
+    <div class="col">
+      <h3 class="font-weight-light">
+        Similar Article Headlines
+        <span v-show="pending">
+          <img src="/static/img/spinner.gif" width="50px" height="50px" alt="Loading...">
+        </span>
+      </h3>
+      <div v-if="articles.length">
+        <div v-for="article in articles">{{ article.headline }}</div>
+      </div>
+      <div v-else>
+        No matches.
+      </div>
+    </div>
+  </div>
+
+  <div v-if="true_images.length > 0" class="font-weight-light text-center row mt-2 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
         True Images
