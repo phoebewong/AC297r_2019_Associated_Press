@@ -67,6 +67,8 @@ class KNN():
         test_tags = [t.lower().replace('"',"") for t in test_tags]
         if true_id is not None:
             k = self.k + 1 # eliminating the true article
+        else:
+            k = self.k
 
         # go through ids
         for ind in range(len(train_ids)):
@@ -89,6 +91,8 @@ class KNN():
                 continue
             img_ids = self.article_to_image[str(article_id)]
             for img_id in img_ids:
+                if img_id in pred_imgs:
+                    continue
                 pred_imgs.append(img_id)
                 scores.append(score)
             article_ids.append(article_id)
