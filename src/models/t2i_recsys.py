@@ -66,13 +66,9 @@ class T2I:
         "recommend images based on given method"
         #format tags
         self.format_tags()
-        
         if self.img_idx_omit is None:
             #get associated images
             self.get_associated_images()
-
-        if remove_original == False:
-            self.img_idx_omit = []
 
         #get article ranked importance vector
         art_imp_vec = self.prep_article_imp_vec()
@@ -87,10 +83,13 @@ class T2I:
         output_img_ids = list()
         for idx in output_idx:
             img_id = list(img_idx_dict.keys())[idx]
-            if img_id not in self.img_idx_omit:
+            if remove_original:
+                if img_id not in self.img_idx_omit:
+                    output_img_ids.append(img_id)
+            else:
                 output_img_ids.append(img_id)
-                if len(output_img_ids) == output_size:
-                    break
+            if len(output_img_ids) == output_size:
+                break
 
         return output_img_ids
 
@@ -99,8 +98,8 @@ def dot_product(ref_matrix, comp_vec):
     Compute dot product distances between input article
     tag vector and image importance matrix.
     '''
-    #normalize vector
-    comp_vec_normalized = Normalizer().fit_transform(comp_vec.reshape(-1,1)).flatten()
+    # #normalize vector
+    # comp_vec_normalized = Normalizer().fit_transform(comp_vec.reshape(-1,1)).flatten()
     #compute dot_product
     img_scores = np.asarray(np.dot(ref_matrix, comp_vec_normalized.T)).flatten()
     return img_scores
