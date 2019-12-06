@@ -98,8 +98,6 @@ def dot_product(ref_matrix, comp_vec):
     Compute dot product distances between input article
     tag vector and image importance matrix.
     '''
-    # #normalize vector
-    # comp_vec_normalized = Normalizer().fit_transform(comp_vec.reshape(-1,1)).flatten()
     #compute dot_product
-    img_scores = np.asarray(np.dot(ref_matrix, comp_vec_normalized.T)).flatten()
+    img_scores = np.asarray(np.dot(ref_matrix, comp_vec.T)).flatten()
     return img_scores
