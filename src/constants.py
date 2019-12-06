@@ -62,5 +62,6 @@ img_bert_embedding_filename = 'img_headline_bert_embeddings.json'
 #npz file name
 imp_matrix_filename = 'imp_matrix.npz'
 ind_matrix_filename = 'ind_matrix.npz'
+normalized_imp_matrix_filename = 'normalized_imp_matrix.npz'
 normalized_img_bert_matrix_filename = 'img_headline_bert_embedding_matrix.npz'
 img_USE_embedding_matrix_filename = 'img_USE_embedding.npz'

@@ -8,7 +8,7 @@ from sklearn.preprocessing import Normalizer
 #directory path
 data_directory = constants.DATA_DIR
 clean_directory = constants.CLEAN_DIR
-#update this in constants.py
+
 imp_matrix_filename = constants.normalized_imp_matrix_filename
 #load presaved matrix and switch back to dense matrix
 img_imp_matrix_sparse = load_npz(f'{data_directory}/{imp_matrix_filename}')
@@ -98,8 +98,6 @@ def dot_product(ref_matrix, comp_vec):
     Compute dot product distances between input article
     tag vector and image importance matrix.
     '''
-    # #normalize vector
-    # comp_vec_normalized = Normalizer().fit_transform(comp_vec.reshape(-1,1)).flatten()
     #compute dot_product
-    img_scores = np.asarray(np.dot(ref_matrix, comp_vec_normalized.T)).flatten()
+    img_scores = np.asarray(np.dot(ref_matrix, comp_vec.T)).flatten()
     return img_scores

@@ -3,13 +3,16 @@ var vue = new Vue({
   el: "#app",
   data () {
     return {
+      clickedImage: null,
       pending: false,
       show_articles: false,
       error: null,
       id: "",
       title: "",
       body: "",
-      chosen_model: "",
+      chosen_model: "all",
+      slider: 5,
+      num: 24,
       time: null,
       tags: [],
       images: [],
@@ -24,7 +27,7 @@ var vue = new Vue({
     getMatches () {
       console.log("fetching matches");
       this.pending = true;
-      var data = { title: this.title, body: this.body, model: this.chosen_model};
+      var data = { title: this.title, body: this.body, model: this.chosen_model, slider: this.slider, num: this.num};
       this.$http.post("/match", data).then(response => {
         if (response.body.status == "ok") {
           this.id = response.body.data.id;
@@ -35,7 +38,7 @@ var vue = new Vue({
           this.images = response.body.data.images;
           this.articles = response.body.data.articles;
           this.true_images = response.body.data.true_images;
-          if (this.chosen_model === "emb" || this.chosen_model === "knn"){
+          if (this.chosen_model === "emb" || this.chosen_model === "knn" || this.chosen_model === "all"){
             this.show_articles = true;
           }
           else {
@@ -43,12 +46,12 @@ var vue = new Vue({
           }
           if (this.log_object) {
             var log_obj = {title: this.title, body: this.body, model: this.chosen_model,
-                           images: this.images, id: this.id};
+                           images: this.images, id: this.id, slider: this.slider, num: this.num};
             this.logData(log_obj);
           }
           else {
             this.log_object = {title: this.title, body: this.body, model: this.chosen_model,
-                               images: this.images, id: this.id};
+                               images: this.images, id: this.id, slider: this.slider, num: this.num};
           }
         }
         this.pending = false;
@@ -78,6 +81,16 @@ var vue = new Vue({
     dislikeClicked(img){
       img.disliked = !img.disliked;
       if (img.disliked === true) img.liked = false;
+    },
+    updateImage(image){
+      this.clickedImage = image;
+    },
+    getTagString(){
+      var string = ''
+      for (const i in this.clickedImage.tags) {
+        string += this.clickedImage.tags[i] + ' | '
+      }
+      return string;
     }
   },
   computed: {},

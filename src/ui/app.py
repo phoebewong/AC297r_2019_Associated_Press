@@ -1,14 +1,20 @@
+# general imports
 import os
 import logging
-from src import api_helper
+import numpy as np
+import time
+
+# models
 from src.models import t2i_recsys
 from src.models.avg_embeddings_model import AvgEmbeddings
 from src.models.soft_cosine_model import SoftCosine
 from src.models.knn_model import KNN
-import numpy as np
-import time
-from src.nlp_util.textacy_util import *
+from src.models.USE_model import USE_Recsys
+from src.nlp_util.textacy_util import extract_textrank_from_text
 
+# API and UI files
+from src import api_helper
+from src import tagging_api
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -24,13 +30,20 @@ app = FastAPI()
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
+model_names_dict = {'t2t': 'Tag-to-tag Model',
+                    'emb': 'Embedding Model',
+                    'softcos': 'Soft Cosine Model',
+                    'knn': 'k-Nearest Neighbor Model',
+                    'use': 'Universal Sentence Embedding Model'}
+
 class InputParams(BaseModel):
     title: str
     body: str
     model: str
+    slider: float
+    num: int
     images: list = []
     id: str = None
-
 
 @app.post('/match')
 async def new_matches(input_params: InputParams):
@@ -39,9 +52,11 @@ async def new_matches(input_params: InputParams):
     logger.debug('model used: %s', input_params.model)
 
     # get tags
-    title, body, model = input_params.title, input_params.body, input_params.model
-    true_images, true_captions = [], []
+    title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider/2.5
+    num = input_params.num
 
+    num_arts = 2 if model == 'all' else 4
+    true_images, true_captions, true_summaries, true_tags = [], [], [], []
     id = api_helper.article_id_extractor(title, body)
 
     # no article text or body
@@ -53,41 +68,59 @@ async def new_matches(input_params: InputParams):
     if id == None:
         print(f'New article not in dataset')
         print(f'Title: {title}')
-        tags, tag_types = api_helper.tagging_api_new(title, body)
+        tags, tag_types = tagging_api.tagging_api_new(title, body)
         print(tags, tag_types)
 
     # existing article
     else:
         print(f'Article id:{id}, title: {title}')
-        id, tags, tag_types = api_helper.tagging_api_existing(title, body)
+        id, tags, tag_types = tagging_api.tagging_api_existing(title, body)
         true_images = api_helper.article_images(id)
-        true_captions = api_helper.image_captions(true_images)
+        true_captions, true_summaries = api_helper.image_captions(true_images)
+        true_tags = api_helper.image_tags(true_images)
 
     textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
     tag_time = time.time() - start_time
 
-    # t2t model stuff
-    if model == 't2t':
+    predicted_imgs = []
+    predicted_arts = []
+    model_names = []
+
+    # exact tag based models
+    num_imgs = int((4-slider) * num/8) if model == 'all' else num
+
+    if model == 't2t' or model == 'all' and num_imgs > 0:
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-        predicted_imgs = t2i_object.predict(4)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = []
+        predicted_imgs.extend(t2i_object.predict(num_imgs))
+        model_names.extend(['t2t']*num_imgs)
 
-    elif model == 'emb':
-        predicted_imgs = embed_model.predict_images(title, k=8)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        article_ids = embed_model.predict_articles(title, k=3, true_id=id)
-        articles = api_helper.matching_articles(article_ids)
+    if model == 'knn' or model == 'all' and num_imgs > 0:
+        img_ids, scores = knn_model.predict_images(tags, k=num_imgs)
+        article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=num_arts)
+        predicted_arts.extend(article_ids)
+        predicted_imgs.extend(img_ids)
+        model_names.extend(['knn']*num_imgs)
 
-    elif model == 'knn':
-        article_ids, predicted_imgs, scores = knn_model.predict(tags, true_id=id)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = api_helper.matching_articles(article_ids)
+    # semantically related models
+    num_imgs = int(slider * num/12) if model == 'all' else num
 
-    elif model == 'softcos':
-        predicted_imgs = soft_cosine_model.predict(title, art_id=id, tags=tags)
-        pred_captions = api_helper.image_captions(predicted_imgs)
-        articles = []
+    if model == 'emb' or model == 'all' and num_imgs > 0:
+        predicted_imgs.extend(embed_model.predict_images(title, k=num_imgs))
+        predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
+        model_names.extend(['emb']*num_imgs)
+
+    if model == 'softcos' or model == 'all' and num_imgs > 0:
+        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_imgs))
+        model_names.extend(['softcos']*num_imgs)
+
+    if model == 'use' or model == 'all' and num_imgs > 0:
+        place_tags = [tags[i] for i in range(len(tags)) if tag_types[i] == 'place']
+        predicted_imgs.extend(USE_model.predict(title, article_id=id, article_tags=place_tags, output_size=num_imgs))
+        model_names.extend(['use']*num_imgs)
+
+    pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
+    articles = api_helper.article_headlines(predicted_arts)
+    image_tags = api_helper.image_tags(predicted_imgs)
 
     img_time = time.time() - start_time - tag_time
 
@@ -97,10 +130,24 @@ async def new_matches(input_params: InputParams):
             'id': id,
             'title': title,
             'body': body,
-            'tags': [{'name': tag, 'type': tag_types[list(tags).index(tag)], 'score': textrank_score[i]} for i, tag in enumerate(entities_list)],
-            'images': [{'id': id, 'caption': pred_captions[i],  'liked': False, 'disliked': False} for i,id in enumerate(predicted_imgs)],
+            'tags': [{'name': tag,
+                      'type': tag_types[list(tags).index(tag)],
+                      'score': textrank_score[i]
+                      } for i, tag in enumerate(entities_list)],
+            'images': [{'id': id,
+                        'caption': pred_captions[i],
+                        'summary': pred_summaries[i],
+                        'tags': image_tags[i],
+                        'model': model_names_dict[model_names[i]],
+                        'liked': False,
+                        'disliked': False
+                        } for i,id in enumerate(predicted_imgs)],
             'articles': articles,
-            'true_images': [{'id': id, 'caption': true_captions[i]} for i, id in enumerate(true_images)],
+            'true_images': [{'id': id,
+                             'caption': true_captions[i],
+                             'summary': true_summaries[i],
+                             'tags': true_tags[i],
+                             } for i, id in enumerate(true_images)],
             'time': {'tag_time': f'{tag_time:0.2f} seconds', 'img_time': f'{img_time:0.2f} seconds'}
         },
     }
@@ -109,10 +156,10 @@ async def new_matches(input_params: InputParams):
 async def log_data(input_params: InputParams):
     print('logging data')
     title, body, model = input_params.title, input_params.body, input_params.model
-    id, images = input_params.id, input_params.images
+    id, images, slider = input_params.id, input_params.images, input_params.slider
+    num = input_params.num
 
-    # log data
-    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images})
+    api_helper.log_data({'title': title, 'body': body, 'model': model, 'id': id, 'images': images, 'slider': slider, 'num': num})
 
     return {
         'status': 'ok'
@@ -122,15 +169,14 @@ async def log_data(input_params: InputParams):
 async def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
 
-
 @app.on_event('startup')
 async def startup_event():
-    global embed_model, knn_model, soft_cosine_model
+    global embed_model, knn_model, soft_cosine_model, USE_model
     embed_model = AvgEmbeddings(50)
     soft_cosine_model = SoftCosine()
-    knn_model = KNN(3)
+    knn_model = KNN()
+    USE_model = USE_Recsys()
     logger.info('started')
-
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)

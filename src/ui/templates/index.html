@@ -44,25 +44,40 @@
       <form class="form">
         <div class="row" style="width: 90%; margin-left: 5%">
           <div class="col-sm-12 mb-2">
-            <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article title">
+            <input v-model="title" type="text" class="form-control form-control-lg text-center mb-1" id="title" placeholder="Article headline">
             <textarea v-model="body" class="form-control text-center mb-1" id="body" placeholder="Article body" rows=4></textarea>
-            <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:20%; margin-left:40%" id="model">
-              <option disabled value="">Select a model</option>
+            <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:60%; margin-left:20%" id="model">
+              <option class="form-control text-center" value="all">Ensemble Model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
-              <option class="form-control text-center" value="emb">Embedding Model</option>
+              <option class="form-control text-center" value="emb">GloVe Embedding Model</option>
               <option class="form-control text-center" value="softcos">Soft Cosine Model</option>
-              <option class="form-control text-center" value="knn">kNN Model</option>
-              <!-- <option class="form-control text-center" value="wem">Word Embedding Model</option> -->
+              <option class="form-control text-center" value="knn">k-Nearest Neighbor Model</option>
+              <option class="form-control text-center" value="use">Universal Sentence Embedding Model</option>
             </select>
+            <div v-if="chosen_model === 'all'" class="d-flex justify-content-center mt-3">
+              <span class="mr-3 mt-1 font-weight-light" style="text-align: right; width: 100%">Exact Matches Only</span>
+              <form class="range-field">
+                <input v-model="slider" class="border-0 custom-range" type="range" min=0 max=10 step=2.5 value=5 />
+              </form>
+              <span class="ml-3 mt-1 font-weight-light" style="text-align: left; width: 100%">Thematically Related Only</span>
+            </div>
           </div>
-          <div class="col-sm-12 text-center">
-            <button type="submit"
-                    class="btn btn-primary float-center"
-                    @click.prevent="getMatches"
-                    :disabled="pending"
-            >
-              Search
-            </button>
+
+          <div v-if="chosen_model" class="col-sm-12 text-center">
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary float-center" @click.prevent="getMatches" :disabled="pending">
+                Get {{num}} Images
+              </button>
+              <button type="button" class="btn btn-primary dropdown-toggle" :disabled="pending"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" v-on:click="num = 24">24</a>
+                <a class="dropdown-item" v-on:click="num = 48">48</a>
+                <a class="dropdown-item" v-on:click="num = 72">72</a>
+              </div>
+            </div>
           </div>
         </div>
       </form>
@@ -113,11 +128,16 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal" data-target="#imageModal"
+                   v-on:click="updateImage(image)">
               <p class="mb-1"> {{ image.caption }} </p>
-              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">Accept</button>
+              <button v-if="image.liked === false" type="button" v-on:click="likeClicked(image)" class="btn btn-outline-success btn-sm">
+                Accept
+              </button>
               <button v-else type="button" v-on:click="likeClicked(image)" class="btn btn-success btn-sm">Accept</button>
-              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">Reject</button>
+              <button v-if="image.disliked === false" type="button" v-on:click="dislikeClicked(image)" class="btn btn-outline-danger btn-sm">
+                Reject
+              </button>
               <button v-else type="button" v-on:click="dislikeClicked(image)" class="btn btn-danger btn-sm">Reject</button>
             </div>
           </div>
@@ -129,7 +149,32 @@
     </div>
   </div>
 
-  <div v-if="show_articles" class="font-weight-light text-center row mt-4 mb-2">
+  <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div v-if="clickedImage" class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="imageModalLabel">{{ clickedImage.caption }}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div style="text-align-last:center">
+            <img class="img-fluid" :src="makeImgSource(clickedImage.id)">
+          </div>
+          <p class="mb-1 mt-2 text-center font-weight-light" style="font-size:80%"> {{ clickedImage.summary }} </p>
+          <div v-if="clickedImage.tags.length" class="font-weight-light mt-2 text-center" style="font-size:70%">
+            {{ getTagString() }}
+          </div>
+          <div class="font-weight-light mt-2 text-center" style="font-size:70%">
+            {{ clickedImage.model }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="show_articles" class="font-weight-light text-center row mb-4">
     <div class="col">
       <h3 class="font-weight-light">
         Similar Article Headlines
@@ -146,7 +191,7 @@
     </div>
   </div>
 
-  <div v-if="true_images.length > 0" class="font-weight-light text-center row mt-2 mb-0">
+  <div v-if="true_images.length > 0" class="font-weight-light text-center row mt-4 mb-0">
     <div class="col">
       <h3 class="font-weight-light">
         True Images
@@ -158,7 +203,8 @@
         <div class="row text-center text-lg-left mb-3">
           <div v-for="image in true_images" class="col-lg-3 col-md-4 col-6">
             <div class="d-block mb-4 h-100 text-center">
-              <img class="img-fluid img-thumbnail" :src="makeImgSource(image.id)">
+              <img class="img-fluid" :src="makeImgSource(image.id)" data-toggle="modal"
+                   data-target="#imageModal" v-on:click="updateImage(image)">
               <p class="mb-1"> {{ image.caption }} </p>
             </div>
           </div>
@@ -174,6 +220,7 @@
 {% endraw %}
 
 <!--scripts-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="{{ url_for('static', path='js/app.js') }}"></script>

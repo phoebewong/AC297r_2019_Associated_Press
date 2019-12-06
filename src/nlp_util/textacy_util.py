@@ -43,7 +43,6 @@ def get_textrank_entities_only(textrank_words, textrank_score, entities_list, re
     Parameters:
     textrank_words: numpy array of textrank ngram tokens
     entities_list: list or numpy array of named entities extracted
-
     Return:
     A numpy array of textrank ngram tokens that contain named entities extracted
     '''
@@ -84,7 +83,6 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     use_spacy_entities: default False, True if wants to use spacy NER instead of tagging api
     tagging_API_entities: a numpy array of entities extracted from tagging API, only used when use_spacy_entities=False
     return_textrank_bags: default False, True if only wants to use textrank scores (and no entities)
-
     Return:
     textrank_entities: A numpy array of textrank ngram tokens that contain named entities extracted
     textrank_score: textrank importance score of textrank_entities (excluding those that do not contain named entities)
