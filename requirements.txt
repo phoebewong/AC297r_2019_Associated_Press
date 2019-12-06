@@ -30,3 +30,5 @@ matplotlib
 gluoncv
 mxnet
 gensim
+tensorflow_hub>=0.6.0
+tensorflow>=2.0.0

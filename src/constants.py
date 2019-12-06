@@ -57,8 +57,10 @@ tag_idx_filename = 'tag_idx.json'
 img_idx_filename = 'img_idx.json'
 obj_imp_filename = 'object_tag_importance_all.json'
 scn_imp_filename = 'scene_tag_importance_all.json'
+img_bert_embedding_filename = 'img_headline_bert_embeddings.json'
 
 #npz file name
 imp_matrix_filename = 'imp_matrix.npz'
 ind_matrix_filename = 'ind_matrix.npz'
-normalized_imp_matrix_filename = 'normalized_imp_matrix.npz'
+normalized_img_bert_matrix_filename = 'img_headline_bert_embedding_matrix.npz'
+img_USE_embedding_matrix_filename = 'img_USE_embedding.npz'
