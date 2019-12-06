@@ -12,7 +12,7 @@ var vue = new Vue({
       body: "",
       chosen_model: "all",
       slider: 5,
-      num: 16,
+      num: 24,
       time: null,
       tags: [],
       images: [],

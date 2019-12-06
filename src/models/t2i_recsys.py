@@ -8,7 +8,7 @@ from sklearn.preprocessing import Normalizer
 #directory path
 data_directory = constants.DATA_DIR
 clean_directory = constants.CLEAN_DIR
-#update this in constants.py
+
 imp_matrix_filename = constants.normalized_imp_matrix_filename
 #load presaved matrix and switch back to dense matrix
 img_imp_matrix_sparse = load_npz(f'{data_directory}/{imp_matrix_filename}')

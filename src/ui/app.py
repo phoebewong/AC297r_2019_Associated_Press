@@ -9,7 +9,8 @@ from src.models import t2i_recsys
 from src.models.avg_embeddings_model import AvgEmbeddings
 from src.models.soft_cosine_model import SoftCosine
 from src.models.knn_model import KNN
-from src.nlp_util.textacy_util import *
+from src.models.USE_model import USE_Recsys
+from src.nlp_util.textacy_util import extract_textrank_from_text
 
 # API and UI files
 from src import api_helper
@@ -32,7 +33,8 @@ templates = Jinja2Templates(directory='templates')
 model_names_dict = {'t2t': 'Tag-to-tag Model',
                     'emb': 'Embedding Model',
                     'softcos': 'Soft Cosine Model',
-                    'knn': 'k-Nearest Neighbor Model'}
+                    'knn': 'k-Nearest Neighbor Model',
+                    'use': 'Universal Sentence Embedding Model'}
 
 class InputParams(BaseModel):
     title: str
@@ -50,18 +52,11 @@ async def new_matches(input_params: InputParams):
     logger.debug('model used: %s', input_params.model)
 
     # get tags
-    title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider
+    title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider/2.5
     num = input_params.num
 
-    if model == 'all':
-        num_per_model = int(num/4)
-        num_arts = 2
-    else:
-        num_per_model = num
-        num_arts = 4
-
+    num_arts = 2 if model == 'all' else 4
     true_images, true_captions, true_summaries, true_tags = [], [], [], []
-
     id = api_helper.article_id_extractor(title, body)
 
     # no article text or body
@@ -91,17 +86,9 @@ async def new_matches(input_params: InputParams):
     predicted_arts = []
     model_names = []
 
-    # Multiplier based on slider value
-    # 0: t2t and knn (2), softcos and emb (0)
-    # 2.5: t2t and knn (1.5), softcos and emb (0.5)
-    # 5: t2t and knn (1), softcos and emb (1)
-    # 7.5: t2t & knn (0.5), softcos and emb (1.5)
-    # 10: t2t & knn (0), softcos and emb (2)
-
-    multiplier = (10-slider)/5.0
-    num_imgs = int(multiplier*num_per_model) if model == 'all' else num_per_model
-
     # exact tag based models
+    num_imgs = int((4-slider) * num/8) if model == 'all' else num
+
     if model == 't2t' or model == 'all' and num_imgs > 0:
         t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
         predicted_imgs.extend(t2i_object.predict(num_imgs))
@@ -114,11 +101,9 @@ async def new_matches(input_params: InputParams):
         predicted_imgs.extend(img_ids)
         model_names.extend(['knn']*num_imgs)
 
-    # reseting multiplier for semantically related models
-    multiplier = slider/5.0
-    num_imgs = int(multiplier*num_per_model) if model == 'all' else num_per_model
-
     # semantically related models
+    num_imgs = int(slider * num/12) if model == 'all' else num
+
     if model == 'emb' or model == 'all' and num_imgs > 0:
         predicted_imgs.extend(embed_model.predict_images(title, k=num_imgs))
         predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
@@ -127,6 +112,11 @@ async def new_matches(input_params: InputParams):
     if model == 'softcos' or model == 'all' and num_imgs > 0:
         predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_imgs))
         model_names.extend(['softcos']*num_imgs)
+
+    if model == 'use' or model == 'all' and num_imgs > 0:
+        place_tags = [tags[i] for i in range(len(tags)) if tag_types[i] == 'place']
+        predicted_imgs.extend(USE_model.predict(title, article_id=id, article_tags=place_tags, output_size=num_imgs))
+        model_names.extend(['use']*num_imgs)
 
     pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
     articles = api_helper.article_headlines(predicted_arts)
@@ -181,10 +171,11 @@ async def home(request: Request):
 
 @app.on_event('startup')
 async def startup_event():
-    global embed_model, knn_model, soft_cosine_model
+    global embed_model, knn_model, soft_cosine_model, USE_model
     embed_model = AvgEmbeddings(50)
     soft_cosine_model = SoftCosine()
     knn_model = KNN()
+    USE_model = USE_Recsys()
     logger.info('started')
 
 if __name__ == '__main__':

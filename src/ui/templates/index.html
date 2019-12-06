@@ -49,9 +49,10 @@
             <select v-model="chosen_model" class="form-control" style="text-align-last: center; width:60%; margin-left:20%" id="model">
               <option class="form-control text-center" value="all">Ensemble Model</option>
               <option class="form-control text-center" value="t2t">Tag-to-tag Model</option>
-              <option class="form-control text-center" value="emb">Embedding Model</option>
+              <option class="form-control text-center" value="emb">GloVe Embedding Model</option>
               <option class="form-control text-center" value="softcos">Soft Cosine Model</option>
               <option class="form-control text-center" value="knn">k-Nearest Neighbor Model</option>
+              <option class="form-control text-center" value="use">Universal Sentence Embedding Model</option>
             </select>
             <div v-if="chosen_model === 'all'" class="d-flex justify-content-center mt-3">
               <span class="mr-3 mt-1 font-weight-light" style="text-align: right; width: 100%">Exact Matches Only</span>
@@ -72,9 +73,9 @@
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" v-on:click="num = 16">16</a>
-                <a class="dropdown-item" v-on:click="num = 32">32</a>
-                <a class="dropdown-item" v-on:click="num = 64">64</a>
+                <a class="dropdown-item" v-on:click="num = 24">24</a>
+                <a class="dropdown-item" v-on:click="num = 48">48</a>
+                <a class="dropdown-item" v-on:click="num = 72">72</a>
               </div>
             </div>
           </div>
