@@ -3,6 +3,7 @@ import pandas as pd
 from spacy.tokens import Doc
 import numpy as np
 import textacy.ke
+from sklearn.preprocessing import Normalizer # for textrank normalizing
 
 en = textacy.load_spacy_lang("en_core_web_sm", disable=("parser",))
 
@@ -116,8 +117,10 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     # Get average textrank score per entity and sort the df in descending order
     temp_df2 = temp_df.groupby('named_entities').mean().sort_values(by = 'TextRank_score', ascending=False).reset_index()
     textrank_score = temp_df2['TextRank_score'].values
+    ## Normalize textrank score
+    textrank_score_normalized = Normalizer().fit_transform(textrank_score.reshape(1, -1)).reshape(1, -1).flatten()
     entities_output = temp_df2['named_entities'].values
     # Return named entities extracted that existed in textrank keywords
     # entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
 
-    return textrank_entities, np.round(textrank_score, 5), entities_output
+    return textrank_entities, np.round(textrank_score_normalized, 5), entities_output
