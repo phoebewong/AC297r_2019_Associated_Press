@@ -315,28 +315,16 @@ class Metadata:
         except:
             return np.nan
 
-
+    ###image only: citation for project
     ###retrieve publishing logistic information
-    def get_altids(self):
-        "return alternative ids as a dictionary"
-        return self.metadata['altids']
+    def get_photographer_code(self):
+        try:
+            return self.metadata['photographer']['code']
+        except:
+            return None
 
-    def get_pubstatus(self):
-        "get item publishing status"
-        return self.metadata['pubstats']
-
-    def get_editorialrole(self):
-        "get editorial role of content"
-        return self.metadata['editorialrole']
-
-    def get_signals(self):
-        "get content item processing status"
-        return self.metadata['signals']
-
-    def get_copyrightnotice(self):
-        "get copyright notice"
-        return self.metadata['copyrightnotice']
-
-    def get_usageterms(self):
-        "get content usage limitation"
-        return self.metadata['usageterms']
+    def get_creditline(self):
+        try:
+            return self.metadata['description_creditline']
+        except:
+            return None
