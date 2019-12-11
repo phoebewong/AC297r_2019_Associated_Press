@@ -81,6 +81,9 @@ target/
 *thumbnail/
 *preview/
 
+#exclude eda outputs
+notebooks/eda/output/*
+
 # Mac OS-specific storage files
 .DS_Store
 
