@@ -2,6 +2,7 @@
 import os
 import logging
 import numpy as np
+import pandas as pd
 import time
 
 # models
@@ -51,78 +52,117 @@ async def new_matches(input_params: InputParams):
     logger.debug('trying to find good images for article: %s', input_params.title)
     logger.debug('model used: %s', input_params.model)
 
-    # get tags
-    title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider/2.5
-    num = input_params.num
+    ids = []
+    true_imgs_list = []
+    knn_preds_list = []
+    t2t_preds_list = []
+    softcos_preds_list = []
+    emb_preds_list = []
+    use_preds_list = []
 
-    num_arts = 2 if model == 'all' else 4
-    true_images, true_captions, true_summaries, true_tags = [], [], [], []
-    id = api_helper.article_id_extractor(title, body)
+    for i in range(500):
+        print(f'{i}: {time.time() - start_time}')
+        # get tags
+        title, body, model, slider = input_params.title, input_params.body, input_params.model, input_params.slider/2.5
+        num = input_params.num
 
-    # no article text or body
-    if len(title) == 0 and len(body) == 0:
-        id, title, body = api_helper.random_article_extractor()
-        print(f'Missing title and/or body. Using a random article instead')
+        num_arts = 2 if model == 'all' else 4
+        true_images, true_captions, true_summaries, true_tags = [], [], [], []
+        id = api_helper.article_id_extractor(title, body)
 
-    # new article
-    if id == None:
-        print(f'New article not in dataset')
-        print(f'Title: {title}')
-        tags, tag_types = tagging_api.tagging_api_new(title, body)
-        print(tags, tag_types)
+        # no article text or body
+        if len(title) == 0 and len(body) == 0:
+            id, title, body = api_helper.random_article_extractor()
+            print(f'Missing title and/or body. Using a random article instead')
 
-    # existing article
-    else:
-        print(f'Article id:{id}, title: {title}')
-        id, tags, tag_types = tagging_api.tagging_api_existing(title, body)
-        true_images = api_helper.article_images(id)
-        true_captions, true_summaries = api_helper.image_captions(true_images)
-        true_tags = api_helper.image_tags(true_images)
+        # new article
+        if id == None:
+            print(f'New article not in dataset')
+            print(f'Title: {title}')
+            tags, tag_types = tagging_api.tagging_api_new(title, body)
+            print(tags, tag_types)
 
-    textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
-    tag_time = time.time() - start_time
+        # existing article
+        else:
+            print(f'Article id:{id}, title: {title}')
+            id, tags, tag_types = tagging_api.tagging_api_existing(title, body)
+            true_images = api_helper.article_images(id)
+            # true_captions, true_summaries = api_helper.image_captions(true_images)
+            true_tags = api_helper.image_tags(true_images)
+            ids.append(id)
+            true_imgs_list.append(true_images)
 
-    predicted_imgs = []
-    predicted_arts = []
-    model_names = []
+        textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
+        tag_time = time.time() - start_time
 
-    # exact tag based models
-    num_imgs = int((4-slider) * num/8) if model == 'all' else num
+        predicted_imgs = []
+        predicted_arts = []
+        model_names = []
+        model_times = {}
 
-    if model == 't2t' or model == 'all' and num_imgs > 0:
-        t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
-        predicted_imgs.extend(t2i_object.predict(num_imgs))
-        model_names.extend(['t2t']*num_imgs)
+        # exact tag based models
+        num_imgs = 60
+        # num_imgs = int((4-slider) * num/8) if model == 'all' else num
 
-    if model == 'knn' or model == 'all' and num_imgs > 0:
-        img_ids, scores = knn_model.predict_images(tags, k=num_imgs)
-        article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=num_arts)
-        predicted_arts.extend(article_ids)
-        predicted_imgs.extend(img_ids)
-        model_names.extend(['knn']*num_imgs)
+        model_start_time = time.time()
+        if model == 't2t' or model == 'all' and num_imgs > 0:
+            t2i_object = t2i_recsys.T2I(id, entities_list.copy(), list(textrank_score))
+            pred_imgs = t2i_object.predict(num_imgs)
+            predicted_imgs.extend(pred_imgs)
+            t2t_preds_list.append(pred_imgs)
+            model_names.extend(['t2t']*num_imgs)
+            model_times['t2t'] = time.time() - model_start_time
+            model_start_time = time.time()
 
-    # semantically related models
-    num_imgs = int(slider * num/12) if model == 'all' else num
 
-    if model == 'emb' or model == 'all' and num_imgs > 0:
-        predicted_imgs.extend(embed_model.predict_images(title, k=num_imgs))
-        predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
-        model_names.extend(['emb']*num_imgs)
+        if model == 'knn' or model == 'all' and num_imgs > 0:
+            pred_imgs, scores = knn_model.predict_images(tags, k=num_imgs)
+            article_ids, scores = knn_model.predict_articles(tags, true_id=id, k=num_arts)
+            # predicted_arts.extend(article_ids)
+            predicted_imgs.extend(pred_imgs)
+            knn_preds_list.append(pred_imgs)
+            model_names.extend(['knn']*num_imgs)
+            model_times['knn'] = time.time() - model_start_time
+            model_start_time = time.time()
 
-    if model == 'softcos' or model == 'all' and num_imgs > 0:
-        predicted_imgs.extend(soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_imgs))
-        model_names.extend(['softcos']*num_imgs)
+        # semantically related models
+        # num_imgs = int(slider * num/12) if model == 'all' else num
 
-    if model == 'use' or model == 'all' and num_imgs > 0:
-        place_tags = [tags[i] for i in range(len(tags)) if tag_types[i] == 'place']
-        predicted_imgs.extend(USE_model.predict(title, article_id=id, article_tags=place_tags, output_size=num_imgs))
-        model_names.extend(['use']*num_imgs)
+        if model == 'emb' or model == 'all' and num_imgs > 0:
+            pred_imgs = embed_model.predict_images(title, k=num_imgs)
+            predicted_imgs.extend(pred_imgs)
+            # predicted_arts.extend(embed_model.predict_articles(title, k=num_arts, true_id=id))
+            emb_preds_list.append(pred_imgs)
+            model_names.extend(['emb']*num_imgs)
+            model_times['emb'] = time.time() - model_start_time
+            model_start_time = time.time()
 
-    pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
-    articles = api_helper.article_headlines(predicted_arts)
-    image_tags = api_helper.image_tags(predicted_imgs)
+        if model == 'softcos' or model == 'all' and num_imgs > 0:
+            pred_imgs = soft_cosine_model.predict(title, art_id=id, tags=tags, num_best=num_imgs)
+            predicted_imgs.extend(pred_imgs)
+            softcos_preds_list.append(pred_imgs)
+            model_names.extend(['softcos']*num_imgs)
+            model_times['softcos'] = time.time() - model_start_time
+            model_start_time = time.time()
 
-    img_time = time.time() - start_time - tag_time
+        if model == 'use' or model == 'all' and num_imgs > 0:
+            place_tags = [tags[i] for i in range(len(tags)) if tag_types[i] == 'place']
+            pred_imgs = USE_model.predict(title, article_id=id, article_tags=place_tags, output_size=num_imgs)
+            use_preds_list.append(pred_imgs)
+            predicted_imgs.extend(pred_imgs)
+            model_names.extend(['use']*num_imgs)
+            model_times['use'] = time.time() - model_start_time
+
+        # pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
+        # articles = api_helper.article_headlines(predicted_arts)
+        # image_tags = api_helper.image_tags(predicted_imgs)
+
+        img_time = time.time() - start_time - tag_time
+
+    df_dict = {'ids': ids, 'true_imgs': true_imgs_list, 'knn': knn_preds_list, 't2t': t2t_preds_list,
+               'softcos': softcos_preds_list, 'emb': emb_preds_list, 'use': use_preds_list}
+    df = pd.DataFrame(df_dict)
+    df.to_csv('data.csv')
 
     return {
         'status': 'ok',
@@ -148,6 +188,7 @@ async def new_matches(input_params: InputParams):
                              'summary': true_summaries[i],
                              'tags': true_tags[i],
                              } for i, id in enumerate(true_images)],
+            'model_times': model_times,
             'time': {'tag_time': f'{tag_time:0.2f} seconds', 'img_time': f'{img_time:0.2f} seconds'}
         },
     }
