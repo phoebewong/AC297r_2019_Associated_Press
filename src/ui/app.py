@@ -54,11 +54,20 @@ async def new_matches(input_params: InputParams):
 
     ids = []
     true_imgs_list = []
+
+    # predictions
     knn_preds_list = []
     t2t_preds_list = []
     softcos_preds_list = []
     emb_preds_list = []
     use_preds_list = []
+
+    # times
+    knn_time = []
+    t2t_time = []
+    softcos_time = []
+    emb_time = []
+    use_time = []
 
     for i in range(500):
         print(f'{i}: {time.time() - start_time}')
@@ -90,7 +99,7 @@ async def new_matches(input_params: InputParams):
             # true_captions, true_summaries = api_helper.image_captions(true_images)
             true_tags = api_helper.image_tags(true_images)
             ids.append(id)
-            true_imgs_list.append(true_images)
+            true_imgs_list.append(list(true_images))
 
         textrank_entities, textrank_score, entities_list = extract_textrank_from_text(body, tagging_API_entities = tags)
         tag_time = time.time() - start_time
@@ -112,6 +121,7 @@ async def new_matches(input_params: InputParams):
             t2t_preds_list.append(pred_imgs)
             model_names.extend(['t2t']*num_imgs)
             model_times['t2t'] = time.time() - model_start_time
+            t2t_time.append(time.time() - model_start_time)
             model_start_time = time.time()
 
 
@@ -123,6 +133,7 @@ async def new_matches(input_params: InputParams):
             knn_preds_list.append(pred_imgs)
             model_names.extend(['knn']*num_imgs)
             model_times['knn'] = time.time() - model_start_time
+            knn_time.append(time.time() - model_start_time)
             model_start_time = time.time()
 
         # semantically related models
@@ -135,6 +146,7 @@ async def new_matches(input_params: InputParams):
             emb_preds_list.append(pred_imgs)
             model_names.extend(['emb']*num_imgs)
             model_times['emb'] = time.time() - model_start_time
+            emb_time.append(time.time() - model_start_time)
             model_start_time = time.time()
 
         if model == 'softcos' or model == 'all' and num_imgs > 0:
@@ -143,6 +155,7 @@ async def new_matches(input_params: InputParams):
             softcos_preds_list.append(pred_imgs)
             model_names.extend(['softcos']*num_imgs)
             model_times['softcos'] = time.time() - model_start_time
+            softcos_time.append(time.time() - model_start_time)
             model_start_time = time.time()
 
         if model == 'use' or model == 'all' and num_imgs > 0:
@@ -152,6 +165,7 @@ async def new_matches(input_params: InputParams):
             predicted_imgs.extend(pred_imgs)
             model_names.extend(['use']*num_imgs)
             model_times['use'] = time.time() - model_start_time
+            use_time.append(time.time() - model_start_time)
 
         # pred_captions, pred_summaries = api_helper.image_captions(predicted_imgs)
         # articles = api_helper.article_headlines(predicted_arts)
@@ -163,6 +177,10 @@ async def new_matches(input_params: InputParams):
                'softcos': softcos_preds_list, 'emb': emb_preds_list, 'use': use_preds_list}
     df = pd.DataFrame(df_dict)
     df.to_csv('data.csv')
+
+    time_dict = {'ids': ids, 'knn': knn_time, 't2t': t2t_time, 'softcos': softcos_time, 'emb': emb_time, 'use': use_time}
+    df = pd.DataFrame(time_dict)
+    df.to_csv('time.csv')
 
     return {
         'status': 'ok',

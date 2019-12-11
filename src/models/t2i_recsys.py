@@ -62,7 +62,7 @@ class T2I:
 
         return art_imp_vec
 
-    def predict(self, output_size, remove_original = True):
+    def predict(self, output_size, remove_original = False):
         "recommend images based on given method"
         #format tags
         self.format_tags()
