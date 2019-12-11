@@ -118,7 +118,10 @@ def extract_textrank_from_text(text, textrank_topn = 0.99, textrank_window = 3, 
     temp_df2 = temp_df.groupby('named_entities').mean().sort_values(by = 'TextRank_score', ascending=False).reset_index()
     textrank_score = temp_df2['TextRank_score'].values
     ## Normalize textrank score
-    textrank_score_normalized = Normalizer().fit_transform(textrank_score.reshape(1, -1)).reshape(1, -1).flatten()
+    try:
+        textrank_score_normalized = Normalizer().fit_transform(textrank_score.reshape(1, -1)).reshape(1, -1).flatten()
+    except:
+        textrank_score_normalized = []
     entities_output = temp_df2['named_entities'].values
     # Return named entities extracted that existed in textrank keywords
     # entities_in_textrank = np.unique(entities_list)[entities_scores >= 1]
