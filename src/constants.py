@@ -22,6 +22,7 @@ LOGGING_DIR = PROJECT_ROOT / 'data' / 'logged_data'
 STANFORD_PARSER = PROJECT_ROOT / 'stanford-parser-full-2018-10-17'
 SRC_DIR = PROJECT_ROOT / 'src'
 PREPROCESSING_DIR = PROJECT_ROOT / 'src' / 'preprocessing'
+USE_MODEL_DIR = PROJECT_ROOT / 'data' / 'use_model_4'
 
 #train test split params
 data_split_random_state = 8

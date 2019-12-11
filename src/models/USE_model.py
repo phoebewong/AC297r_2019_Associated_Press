@@ -56,7 +56,11 @@ class USE_Recsys:
 
         #load pretrained sentence embeddings
         print(f'Loading pretrained USE...')
-        self.embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
+        try:
+            self.embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
+        except:
+        #try loading downloaded model if hub load fails on link
+            self.embed = hub.load(str(constants.USE_MODEL_DIR))
 
 
     def get_article_embedding(self, article_headline):
