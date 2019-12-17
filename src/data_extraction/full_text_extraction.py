@@ -21,4 +21,6 @@ if __name__ == '__main__':
             print('{} out of {} done'.format(i, len(articles)))
         with open('{}/{}'.format(folder, file)) as json_file:
             json_data = json.load(json_file)
+
+            # extract the full text from articles
             article_item = ArticleItem(raw_json=None, full_json=json_data).get_text(apikey)
