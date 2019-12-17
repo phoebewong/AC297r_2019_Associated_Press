@@ -55,7 +55,7 @@ setuptools version 40.6.2
 
 #### Download pre-trained Universal Sentence Encoder
 
-1. download version 4 of the pre-trained USE from https://tfhub.dev/google/universal-sentence-encoder/4s
+1. download version 4 of the pre-trained USE from https://tfhub.dev/google/universal-sentence-encoder/4
 2. unzip the downloaded file and rename model directory as `use_model_4/`
 3. place model directory in `data/`
 
@@ -249,7 +249,7 @@ Below we provide an overview of the structure of our `src` directory. Note that 
           ├── templates
             ├── index.html
           ├── __init__.py
-          ├── app.py
+          ├── app.py
 
 --------
 
