@@ -249,7 +249,7 @@ Below we provide an overview of the structure of our `src` directory. Note that 
           ├── templates
             ├── index.html
           ├── __init__.py
-          └── app.py
+          ├── app.py
 
 --------
 
