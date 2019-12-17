@@ -47,25 +47,20 @@ setuptools version 40.6.2
 2. `pip list` will now list all our requirements
 3. `python -m spacy download en` to install the spacy model
 
-#### Download stanford parser
+#### Download Stanford parser (optional: only if you want to run the Image tag importance ranking source code for new images)
 
 1. download Stanford Parser version 3.9.2 from https://nlp.stanford.edu/software/lex-parser.shtml#Download
 2. unzip the downloaded folder as `stanford-parser-full-2018-10-17/`
 3. place folder in the main directory
 
-#### Download GloVe Embeddings
+#### Download pre-trained Universal Sentence Encoder
 
-TODO
-
-
-#### Download pretrained Universal Sentence Encoder
-
-1. download version 4 of the pretrained USE from https://tfhub.dev/google/universal-sentence-encoder/4s
+1. download version 4 of the pre-trained USE from https://tfhub.dev/google/universal-sentence-encoder/4s
 2. unzip the downloaded file and rename model directory as `use_model_4/`
 3. place model directory in `data/`
 
 
-#### Sensitive files
+#### API keys
 
 There are two sensitive files: one is our API key for the taxonomy data and the second is the API key for getting data from our on-demand queue given to us by the AP. These are the instructions for the the first file
 
@@ -86,7 +81,7 @@ apikey = yourApiKeyHere
 #### Getting the data
 
 1. Download the data (about 15gb) from google drive [link](https://drive.google.com/file/d/12vmDT-GueP2-DooyaeQwEFrFz9K7SS_7/view?usp=sharing)
-2. Unzip the data within the `src` folder. There should be a `src/data` folder now
+2. Unzip the data within the main directory of the GitHub repository. There should be a `/data` folder now.
 3. If there is a folder called `__MACOSX` now created in the root directory of the github repository alongside the `data` directory, this folder can be deleted using `rm -rf __MACOSX`.
 4. Copy the folder `src/data/preview` and `src/data/thumbnail` into `src/ui/static/img`
 5. A sanity check: `ls src/ui/static/img` should show the folders `thumbnail`, `preview` and `spinner.gif`
@@ -142,8 +137,7 @@ This directory includes all data and reference files we have worked with in comp
 
 * `logged_data/`
 
-  TODO
-
+  We currently log data about images that are 'liked' or 'disliked' on the UI in json files in this folder. This folder is currently empty but will populate with entries once the UI is run for 2 or more articles.
 
 #### Src
 
@@ -155,7 +149,7 @@ Below we provide an overview of the structure of our `src` directory. Note that 
 
 * `api_helper.py`
 
-  Api helper functions [EDIT]
+  Api helper functions such as functions that get the headline of an article or the images associated with an article.
 
 * `tagging_api.py`
 
@@ -163,7 +157,13 @@ Below we provide an overview of the structure of our `src` directory. Note that 
 
 * `data_extraction/`
 
-  TODO
+  The data extraction folder contains our source files used for extracting data from our on-demand-queue given to us by the Associated Press. In order to run any of these files you must have a valid API key. Check out the **API keys** section of the previous section for more information. The data has already been extracted so you do not need to run any files in this section to make the UI work. To run the files, follow these steps:
+
+  1. `cd data_extraction`
+  2. `python main_extraction.py` to extract the json files from our on-demand queue and save it to the data folder (subfolders `full`, `article` and `image`)
+  3. `python full_text_extraction.py` to extract the full text from each article and save it to the data folder (subfolder `full_text`)
+  4. `python image_extraction.py` to extract the preview and thumbnail jpg images and save it to the data folder (subfolder `preview` and `thumbnail`)
+
 
 * `metadata/`
 
@@ -232,8 +232,24 @@ Below we provide an overview of the structure of our `src` directory. Note that 
 
 * `ui/`
 
-  TODO
+  The structure of this folder is as follows:
 
+      ├── src
+        ├── ui
+          ├── static
+            ├── css
+              ├── app.css
+            ├── img
+              ├── preview
+              ├── thumbnail
+              ├── spinner.gif
+            ├── js
+              ├── app.js
+            ├── favicon.ico
+          ├── templates
+            ├── index.html
+          ├── __init__.py
+          └── app.py
 
 --------
 
