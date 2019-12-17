@@ -206,7 +206,9 @@ Below we provide an overview of the structure of our `src` directory. Note that 
 
 * `nlp_util/`
 
-  TODO
+  Directory for TextRank
+  * run `extract_textrank_from_text` to extract textrank from a full news article. It currently accepts AP tagging API tags as entities.
+  * run `get_textacy_name_entities` to get named entities extracted by `spaCy` (instead of using tagging API), but it is not used in our project's final implementation.
 
 
 * `preprocessing/`
