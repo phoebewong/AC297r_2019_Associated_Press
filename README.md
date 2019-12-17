@@ -67,7 +67,7 @@ apikey = yourApiKeyHere
 ```
 #### Getting the data
 
-1. Download the data (about 15gb) from google drive [TODO: fix link](link)
+1. Download the data (about 15gb) from google drive [link](https://drive.google.com/file/d/12vmDT-GueP2-DooyaeQwEFrFz9K7SS_7/view?usp=sharing)
 2. Unzip the data within the `src` folder. There should be a `src/data` folder now
 3. If there is a folder called `__MACOSX` now created in the root directory of the github repository alongside the `data` directory, this folder can be deleted using `rm -rf __MACOSX`.
 4. Copy the folder `src/data/preview` and `src/data/thumbnail` into `src/ui/static/img`
