@@ -10,7 +10,8 @@ We create a Text-to-Image Recommendation system that takes the text and headline
 
 ### Deliverables
 
-View our [Poster](https://github.com/phoebewong/AC297r_2019_Associated_Press/blob/master/submissions/final-presentation/ap_capstone_final_poster.pdf) and our [Final Presentation](https://github.com/phoebewong/AC297r_2019_Associated_Press/blob/master/submissions/final-presentation/ap_capstone_final_presentation.pdf) in the `submissions` folder. In addition, we also wrote a blog on Towards Data Science that you can read [here](todo).
+View our [Poster](https://github.com/phoebewong/AC297r_2019_Associated_Press/blob/master/submissions/final-presentation/ap_capstone_final_poster.pdf) and our [Final Presentation](https://github.com/phoebewong/AC297r_2019_Associated_Press/blob/master/submissions/final-presentation/ap_capstone_final_presentation.pdf) in the `submissions` folder. In addition, we also wrote a blog on Towards Data Science that you can read [here](https://medium.com/p/building-an-image-recommendation-system-for-news-articles-using-word-and-sentence-embeddings-a5acb485a445
+).
 
 --------
 
@@ -206,7 +207,9 @@ Below we provide an overview of the structure of our `src` directory. Note that 
 
 * `nlp_util/`
 
-  TODO
+  Directory for TextRank
+  * run `extract_textrank_from_text` to extract textrank from a full news article. It currently accepts AP tagging API tags as entities.
+  * run `get_textacy_name_entities` to get named entities extracted by `spaCy` (instead of using tagging API), but it is not used in our project's final implementation.
 
 
 * `preprocessing/`
